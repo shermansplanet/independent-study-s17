@@ -15,7 +15,7 @@ public class PlayerMove : MonoBehaviour {
 
 	void Update () {
 		for (int i = 0; i < players.Count; ++i) {
-			Move.ObjectMove ("Vertical" + (i+1).ToString(), "Horizontal"+ (i+1).ToString(), players [i]);
+			Move.ObjectMove ("Vertical"+i.ToString(), "Horizontal"+i.ToString(), players [i]);
 		}
 	}
 }
