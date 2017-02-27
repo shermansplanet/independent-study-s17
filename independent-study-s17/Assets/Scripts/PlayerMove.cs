@@ -40,14 +40,16 @@ public class PlayerMove : MonoBehaviour {
 			float distZ = Mathf.Abs (normalizedZ - positionWithinTile.z * 2) / Mathf.Abs (positionOffset.z);
 			selector.position = currentTile + (distX < distZ ? new Vector3 (normalizedX, 0, 0) : new Vector3 (0, 0, normalizedZ));
 
-			if (!SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, -2, 0))) {
+			if (!SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, -2, 0))
+				|| SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, 0, 0))) {
 				if (positionOffset.x > 0 && positionWithinTile.x > RADIUS) {
 					positionOffset.x = 0;
 				} else if (positionOffset.x < 0 && positionWithinTile.x < -RADIUS) {
 					positionOffset.x = 0;
 				}
 			}
-			if (!SpawnTiles.tileExists (currentTile + new Vector3 (0, -2, normalizedZ))) {
+			if (!SpawnTiles.tileExists (currentTile + new Vector3 (0, -2, normalizedZ))
+				|| SpawnTiles.tileExists (currentTile + new Vector3 (0, 0, normalizedZ))) {
 				if (positionOffset.z > 0 && positionWithinTile.z > RADIUS) {
 					positionOffset.z = 0;
 				} else if (positionOffset.z < 0 && positionWithinTile.z < -RADIUS) {
