@@ -14,18 +14,16 @@ public class PlayerMove : MonoBehaviour {
 	//for two players
 	List<GameObject> players = new List<GameObject>();
 
+	//I am assuming the players will always be in the scene?
 	void Start () {
-		
-	}
-
-	void Update () {
-		//we may be able to smplify this later
 		foreach(GameObject player in GameObject.FindObjectsOfType (typeof(GameObject)))
 		{
 			if(player.tag == "Player" && !players.Contains(player))
 				players.Add (player);
 		}
+	}
 
+	void Update () {
 		Move ("Vertical1", "Horizontal1", players [0]);
 
 		if (players.Count > 1){
