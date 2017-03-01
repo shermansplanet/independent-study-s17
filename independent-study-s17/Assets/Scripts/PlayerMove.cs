@@ -11,6 +11,12 @@ public class PlayerMove : MonoBehaviour {
 		foreach(Player player in GameObject.FindObjectsOfType (typeof(Player))){
 			players.Add (player);
 		}
+		//hopefully we can find a more elegent solution, but I just want to see if this helps
+		if (!players [0].isPlayer1) {
+			Player temp = players [0];
+			players.Remove(players[0]);
+			players.Add (temp);
+		}
 	}
 
 	void Update () {
