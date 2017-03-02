@@ -7,6 +7,7 @@ public class Move : MonoBehaviour {
 	static readonly Vector3 UP = new Vector3(1,0,1).normalized;
 	static readonly Vector3 RIGHT = new Vector3(1,0,-1).normalized;
 	const float RADIUS = 0.5f;
+	private static float DIAG_RADIUS = 1-(1-RADIUS)/Mathf.Sqrt(2);
 	static public float speed = 2;
 
 	public static void ObjectMove(string axisV, string axisH, Player p){
@@ -34,19 +35,29 @@ public class Move : MonoBehaviour {
 			float distZ = Mathf.Abs (normalizedZ - positionWithinTile.z * 2) / Mathf.Abs (positionOffset.z);
 			p.selector.position = currentTile + (distX < distZ ? new Vector3 (normalizedX, 0, 0) : new Vector3 (0, 0, normalizedZ));
 
+			bool exceedingBoundaryX = (positionOffset.x > 0 && positionWithinTile.x > RADIUS) || (positionOffset.x < 0 && positionWithinTile.x < -RADIUS);
+			bool exceedingBoundaryZ = (positionOffset.z > 0 && positionWithinTile.z > RADIUS) || (positionOffset.z < 0 && positionWithinTile.z < -RADIUS);
+			bool onEdge = false;
+
 			if (!SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, -2, 0))
 				|| SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, 0, 0))) {
-				if (positionOffset.x > 0 && positionWithinTile.x > RADIUS) {
+				if (exceedingBoundaryX) {
 					positionOffset.x = 0;
-				} else if (positionOffset.x < 0 && positionWithinTile.x < -RADIUS) {
-					positionOffset.x = 0;
+					onEdge = true;
 				}
 			}
 			if (!SpawnTiles.tileExists (currentTile + new Vector3 (0, -2, normalizedZ))
 				|| SpawnTiles.tileExists (currentTile + new Vector3 (0, 0, normalizedZ))) {
-				if (positionOffset.z > 0 && positionWithinTile.z > RADIUS) {
+				if (exceedingBoundaryZ) {
 					positionOffset.z = 0;
-				} else if (positionOffset.z < 0 && positionWithinTile.z < -RADIUS) {
+					onEdge = true;
+				}
+			}
+
+			if (!SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, -2, normalizedZ))
+				|| SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, 0, normalizedZ))) {
+				if (exceedingBoundaryX && exceedingBoundaryZ && !onEdge) {
+					positionOffset.x = 0;
 					positionOffset.z = 0;
 				}
 			}

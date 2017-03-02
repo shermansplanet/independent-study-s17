@@ -3,5 +3,5 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Spellable : MonoBehaviour {
-	virtual public void ApplySpell (SpellManager.spell spellType, Vector3 casterPosition) {}
+	virtual public void ApplySpell (SpellManager.spell spellType, Vector3 casterPosition, Vector3 casterPosition2) {}
 }

@@ -6,7 +6,7 @@ public class SpellManager : MonoBehaviour {
 
 	const float spellSpeed = 1;
 
-	public enum spell{PUSH};
+	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH};
 	private spell[] currentSpell = new spell[]{spell.PUSH,spell.PUSH};
 	public Transform[] players;
 
@@ -18,32 +18,67 @@ public class SpellManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		selectorMaterials = new Material[selectors.Length];
-		selectorMaterials [0] = selectors [0].GetComponent<MeshRenderer> ().material;
+		for (int i = 0; i < players.Length; i++) {
+			selectorMaterials [i] = selectors [i].GetComponent<MeshRenderer> ().material;
+		}
+	}
+
+	private Vector3 getTile(Vector3 pos){
+		return new Vector3 (
+			Mathf.Round (pos.x / 2),
+			Mathf.Round (pos.y / 2),
+			Mathf.Round (pos.z / 2)) * 2;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKey(KeyCode.Space)){
-			if (spellProgress [0] >= 1) {
-				spellProgress [0] = -1;
-				Vector3 playerPos = players [0].position;
-				playerPos = new Vector3 (
-					Mathf.Round (playerPos.x/2),
-					Mathf.Round (playerPos.y/2),
-					Mathf.Round (playerPos.z/2))*2;
-				if (SpawnTiles.tileExists (selectors[0].transform.position)) {
-					Spellable spellableBlock = SpawnTiles.blocks [SpawnTiles.roundVector (selectors[0].transform.position)].GetComponent<Spellable>();
-					if (spellableBlock != null) {
-						spellableBlock.ApplySpell (currentSpell [0], playerPos);
+		for (int i = 0; i < players.Length; i++) {
+			if (Input.GetButton("Spell"+i.ToString())) {
+				if (spellProgress [i] >= 1) {
+					spellProgress [i] = -1;
+					Vector3 playerPos = getTile(players [i].position);
+					int otherPlayer = -1;
+					Vector3 spellPos = selectors [i].transform.position;
+					for (int j = 0; j < players.Length; j++) {
+						if (j == i)
+							continue;
+						Vector3 otherSpellPos = selectors [j].transform.position;
+						if (otherSpellPos == spellPos) {
+							otherPlayer = j;
+							spellProgress [j] = -1;
+							break;
+						}
 					}
+					if (SpawnTiles.tileExists (spellPos)) {
+						Spellable spellableBlock = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)].GetComponent<Spellable> ();
+						if (spellableBlock != null) {
+							if (otherPlayer == -1) {
+								spellableBlock.ApplySpell (currentSpell [i], playerPos, Vector3.zero);
+							} else {
+								spellableBlock.ApplySpell (getSpellCombo(currentSpell [i],currentSpell[otherPlayer]), playerPos, getTile (players [otherPlayer].position));
+							}
+						}
+					}
+				} else if (spellProgress [i] >= 0) {
+					spellProgress [i] += spellSpeed * Time.deltaTime;
 				}
-			} else if(spellProgress[0] >= 0){
-				spellProgress [0] += spellSpeed * Time.deltaTime;
+			} else {
+				spellProgress [i] = 0;
 			}
-		} else {
-			spellProgress [0] = 0;
+			float c = Mathf.Clamp01 (spellProgress [i]) * 0.9f + 0.1f;
+			selectorMaterials [i].SetColor ("_TintColor", new Color (c, c, c, 0.5f));
 		}
-		float c = Mathf.Clamp01(spellProgress [0]) * 0.9f + 0.1f;
-		selectorMaterials[0].SetColor("_TintColor", new Color (c,c,c,0.5f));
+	}
+
+	spell getSpellCombo(spell spell1, spell spell2){
+		switch (spell1) {
+		case spell.PUSH:
+			switch (spell2) {
+			case spell.PUSH:
+				return spell.DOUBLE_PUSH;
+			}
+			break;
+		}
+		return spell.NO_EFFECT;
 	}
 }
