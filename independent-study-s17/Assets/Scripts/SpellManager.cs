@@ -43,7 +43,7 @@ public class SpellManager : MonoBehaviour {
 						if (j == i)
 							continue;
 						Vector3 otherSpellPos = selectors [j].transform.position;
-						if (otherSpellPos == spellPos) {
+						if (otherSpellPos == spellPos && spellProgress[j] > 0) {
 							otherPlayer = j;
 							spellProgress [j] = -1;
 							break;
