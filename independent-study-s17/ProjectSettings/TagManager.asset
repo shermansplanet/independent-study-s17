@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Spellable
+  - Pushblock
   layers:
   - Default
   - TransparentFX

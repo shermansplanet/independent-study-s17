@@ -938,6 +938,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 817b6711280735d42a36acd31629d7d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tick: 1
+  nextTime: 0
+  killPlane: -4
 --- !u!1 &1688101382
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,7 +1036,7 @@ GameObject:
   - component: {fileID: 1750982558}
   m_Layer: 0
   m_Name: Pushblock
-  m_TagString: Spellable
+  m_TagString: Pushblock
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
