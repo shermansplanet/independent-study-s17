@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
 
 public class Levelmaker : MonoBehaviour {
 
@@ -67,6 +68,8 @@ public class Levelmaker : MonoBehaviour {
 	public GameObject indicator;
 	public GameObject startCube;
 	public Text display;
+	public InputField saveInput;
+	public InputField loadInput;
 
 	private bool placing = false;
 	private bool deleting = false;
@@ -114,25 +117,27 @@ public class Levelmaker : MonoBehaviour {
 
 	void Update () {
 
-		for (int i = 0; i < blocktypes.Length; i++) {
-			if (Input.GetKeyDown ((i + 1).ToString ())) {
-				currentBlockType = i;
-				RefreshDisplay ();
+		if (!saveInput.isFocused && !loadInput.isFocused) {
+			for (int i = 0; i < blocktypes.Length; i++) {
+				if (Input.GetKeyDown ((i + 1).ToString ())) {
+					currentBlockType = i;
+					RefreshDisplay ();
+				}
 			}
-		}
 
-		transform.Translate (new Vector3 (Input.GetAxis ("Horizontal1"),
-			Input.GetAxis ("Vertical1"),
-			Input.GetAxis ("Vertical1")) * Time.deltaTime * 10);
+			transform.Translate (new Vector3 (Input.GetAxis ("Horizontal1"),
+				Input.GetAxis ("Vertical1"),
+				Input.GetAxis ("Vertical1")) * Time.deltaTime * 10);
 
-		Camera.main.orthographicSize *= 1 - Input.GetAxis ("Vertical0") * Time.deltaTime;
+			Camera.main.orthographicSize *= 1 - Input.GetAxis ("Vertical0") * Time.deltaTime;
 
-		Vector3 center = transform.position - transform.TransformVector (cameraOffset);
-		transform.RotateAround (center, Vector3.up, - Input.GetAxis ("Horizontal0") * Time.deltaTime * 90);
-		if (Input.GetKeyDown (KeyCode.R)) {
-			transform.position = center;
-			transform.rotation = originalRotation;
-			transform.Translate (cameraOffset);
+			Vector3 center = transform.position - transform.TransformVector (cameraOffset);
+			transform.RotateAround (center, Vector3.up, -Input.GetAxis ("Horizontal0") * Time.deltaTime * 90);
+			if (Input.GetKeyDown (KeyCode.R)) {
+				transform.position = center;
+				transform.rotation = originalRotation;
+				transform.Translate (cameraOffset);
+			}
 		}
 
 		if (placing || deleting) {
@@ -148,9 +153,7 @@ public class Levelmaker : MonoBehaviour {
 					Vector3 pos = startVector + i * dirVector;
 					int3 intPos = getTile (pos);
 					if (!blocksInScene.ContainsKey (intPos)) {
-						GameObject blockInstance = Instantiate (blockPrefab, pos, Quaternion.identity);
-						blockInstance.GetComponent<Renderer> ().material.color = blocktypes [currentBlockType].color;
-						blocksInScene.Add (intPos, new blockData (blocktypes [currentBlockType], intPos, 0, blockInstance));
+						MakeBlock (intPos, blocktypes [currentBlockType]);
 					}
 				}
 			}else if (deleting && !Input.GetMouseButton (1)) {
@@ -213,10 +216,55 @@ public class Levelmaker : MonoBehaviour {
 		}
 	}
 
+	private void MakeBlock(int3 pos, block type){
+		GameObject blockInstance = Instantiate (blockPrefab, pos.ToVector(), Quaternion.identity);
+		blockInstance.GetComponent<Renderer> ().material.color = type.color;
+		blocksInScene.Add (pos, new blockData (type, pos, 0, blockInstance));
+	}
+
 	private int3 getTile(Vector3 pos){
 		return new int3 (
 			Mathf.RoundToInt (pos.x / 2) * 2,
 			Mathf.RoundToInt (pos.y / 2) * 2,
 			Mathf.RoundToInt (pos.z / 2) * 2);
+	}
+
+	public void Load(){
+		Clear ();
+		string s = System.IO.File.ReadAllText("Assets/Resources/" + loadInput.text + ".txt");
+		foreach (string line in s.Split('\n')) {
+			string[] item = line.Split (',');
+			int3 pos = new int3 (
+				           int.Parse (item [0]),
+				           int.Parse (item [1]),
+				           int.Parse (item [2]));
+			foreach (block b in blocktypes) {
+				if (b.name == item [3]) {
+					MakeBlock (pos, b);
+					break;
+				}
+			}
+		}
+	}
+
+	private void Clear(){
+		foreach (blockData data in blocksInScene.Values) {
+			Destroy (data.obj);
+		}
+		blocksInScene.Clear ();
+	}
+
+	public void Save(){
+		string s = "";
+		foreach (int3 pos in blocksInScene.Keys) {
+			blockData data = blocksInScene [pos];
+			s += string.Format ("{0},{1},{2},{3}\n",
+				pos.x.ToString (),
+				pos.y.ToString (),
+				pos.z.ToString (),
+				data.blockType.name);
+		}
+		s = s.TrimEnd ('\n');
+		System.IO.File.WriteAllText("Assets/Resources/" + saveInput.text + ".txt", s);
 	}
 }
