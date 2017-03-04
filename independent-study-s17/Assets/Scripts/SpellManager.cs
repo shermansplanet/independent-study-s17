@@ -6,8 +6,8 @@ public class SpellManager : MonoBehaviour {
 
 	const float spellSpeed = 1;
 
-	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH};
-	private spell[] currentSpell = new spell[]{spell.PUSH,spell.PUSH};
+	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK};
+	private spell[] currentSpell = new spell[]{spell.PUSH,spell.CREATE_BLOCK};
 	public Transform[] players;
 
 	public GameObject[] selectors;
@@ -49,7 +49,8 @@ public class SpellManager : MonoBehaviour {
 							break;
 						}
 					}
-					if (SpawnTiles.tileExists (spellPos)) {
+					//PUSH and DOUBlE PUSH
+					if (currentSpell [i].Equals(spell.PUSH) && SpawnTiles.tileExists (spellPos)) {
 						Spellable spellableBlock = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)].GetComponent<Spellable> ();
 						if (spellableBlock != null) {
 							if (otherPlayer == -1) {
@@ -59,6 +60,17 @@ public class SpellManager : MonoBehaviour {
 							}
 						}
 					}
+					//CREATE BLOCK/PUSHBLOCK
+					else if (currentSpell [i].Equals(spell.CREATE_BLOCK)) {
+						if (otherPlayer == -1) {
+							GameObject tile = Instantiate (Resources.FindObjectsOfTypeAll(typeof(TileBehavior))[0], spellPos, Quaternion.Euler (0,0,0)) as GameObject;
+							SpawnTiles.blocks.Add (spellPos, tile);
+						} else {
+							GameObject p = Instantiate (Resources.FindObjectsOfTypeAll(typeof(Pushblock))[0], spellPos, Quaternion.Euler (0,0,0)) as GameObject;
+							SpawnTiles.blocks.Add (spellPos, p);
+						}
+					}
+
 				} else if (spellProgress [i] >= 0) {
 					spellProgress [i] += spellSpeed * Time.deltaTime;
 				}
@@ -76,6 +88,12 @@ public class SpellManager : MonoBehaviour {
 			switch (spell2) {
 			case spell.PUSH:
 				return spell.DOUBLE_PUSH;
+			}
+			break;
+		case spell.CREATE_BLOCK:
+			switch (spell2) {
+			case spell.PUSH:
+				return spell.CREATE_PUSHBLOCK;
 			}
 			break;
 		}
