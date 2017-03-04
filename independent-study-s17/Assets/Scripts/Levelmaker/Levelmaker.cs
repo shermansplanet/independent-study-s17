@@ -74,6 +74,8 @@ public class Levelmaker : MonoBehaviour {
 	private Vector3 selectionEnd = new Vector3();
 	private Material indicatorMaterial;
 	private int currentBlockType = 0;
+	private Vector3 cameraOffset;
+	private Quaternion originalRotation;
 
 	private Dictionary<int3,blockData> blocksInScene = new Dictionary<int3,blockData>();
 
@@ -84,6 +86,8 @@ public class Levelmaker : MonoBehaviour {
 		startCube.GetComponent<Renderer> ().material.color = blocktypes [0].color;
 		indicatorMaterial = indicator.GetComponent<Renderer> ().material;
 		RefreshDisplay ();
+		cameraOffset = transform.InverseTransformVector(transform.position);
+		originalRotation = transform.rotation;
 	}
 
 	void RefreshDisplay(){
@@ -120,6 +124,16 @@ public class Levelmaker : MonoBehaviour {
 		transform.Translate (new Vector3 (Input.GetAxis ("Horizontal1"),
 			Input.GetAxis ("Vertical1"),
 			Input.GetAxis ("Vertical1")) * Time.deltaTime * 10);
+
+		Camera.main.orthographicSize *= 1 - Input.GetAxis ("Vertical0") * Time.deltaTime;
+
+		Vector3 center = transform.position - transform.TransformVector (cameraOffset);
+		transform.RotateAround (center, Vector3.up, - Input.GetAxis ("Horizontal0") * Time.deltaTime * 90);
+		if (Input.GetKeyDown (KeyCode.R)) {
+			transform.position = center;
+			transform.rotation = originalRotation;
+			transform.Translate (cameraOffset);
+		}
 
 		if (placing || deleting) {
 			float scaleFactor = deleting ? 2.01f : 1.99f;
@@ -176,20 +190,25 @@ public class Levelmaker : MonoBehaviour {
 			Ray cameraRay = Camera.main.ScreenPointToRay (Input.mousePosition);
 			RaycastHit hit = new RaycastHit ();
 			if (Physics.Raycast (cameraRay, out hit)) {
-				selectionStart = getTile (hit.point + hit.normal);
-				selectionEnd = selectionStart.ToVector ();
-				indicator.transform.position = selectionStart.ToVector ();
-				indicator.SetActive (true);
-				if (Input.GetMouseButton(0)) {
-					placing = true;
-				}
-				if (Input.GetMouseButton(1)) {
+				if (hit.collider.name == "BackCollider") {
 					selectionStart = getTile (hit.point - hit.normal);
-					selectionEnd = selectionStart.ToVector ();
-					deleting = true;
+				} else {
+					selectionStart = getTile (hit.point + hit.normal);
 				}
-			} else {
+			}else{
 				indicator.SetActive (false);
+				return;
+			}
+			selectionEnd = selectionStart.ToVector ();
+			indicator.transform.position = selectionStart.ToVector ();
+			indicator.SetActive (true);
+			if (Input.GetMouseButton(0)) {
+				placing = true;
+			}
+			if (Input.GetMouseButton(1)) {
+				selectionStart = getTile (hit.point - hit.normal);
+				selectionEnd = selectionStart.ToVector ();
+				deleting = true;
 			}
 		}
 	}
