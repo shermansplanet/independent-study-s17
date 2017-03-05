@@ -70,6 +70,9 @@ public class Levelmaker : MonoBehaviour {
 	public Text display;
 	public InputField saveInput;
 	public InputField loadInput;
+	public GameObject spellLinePrefab;
+	public Transform canvas;
+	public Transform addButton;
 
 	private bool placing = false;
 	private bool deleting = false;
@@ -79,7 +82,9 @@ public class Levelmaker : MonoBehaviour {
 	private int currentBlockType = 0;
 	private Vector3 cameraOffset;
 	private Quaternion originalRotation;
+	private static Levelmaker instance;
 
+	private static List<GameObject> spellLines = new List<GameObject>();
 	private Dictionary<int3,blockData> blocksInScene = new Dictionary<int3,blockData>();
 
 	readonly Vector3[] directions = new Vector3[]{Vector3.right,Vector3.up,Vector3.forward,Vector3.back,Vector3.down,Vector3.left};
@@ -91,6 +96,7 @@ public class Levelmaker : MonoBehaviour {
 		RefreshDisplay ();
 		cameraOffset = transform.InverseTransformVector(transform.position);
 		originalRotation = transform.rotation;
+		instance = this;
 	}
 
 	void RefreshDisplay(){
@@ -113,6 +119,31 @@ public class Levelmaker : MonoBehaviour {
 	private byte ToByte(float f){
 		f = Mathf.Clamp01(f);
 		return (byte)(f * 255);
+	}
+
+	public void AddSpellLine(){
+		GameObject line = Instantiate (spellLinePrefab);
+		spellLines.Add (line);
+		line.transform.SetParent (canvas);
+		float h = addButton.GetComponent<RectTransform> ().offsetMax.y;
+		line.GetComponent<RectTransform> ().offsetMax = new Vector2 (0, h);
+		line.GetComponent<RectTransform> ().offsetMin = new Vector2 (0, h - 50);
+		addButton.transform.Translate (0, -70, 0);
+	}
+
+	public static void RemoveSpellLine(GameObject toRemove){
+		bool movingUp = false;
+		for (int i = 0; i < spellLines.Count; i++) {
+			if (movingUp) {
+				spellLines [i].transform.Translate (0, 70, 0);
+			}
+			if (spellLines [i] == toRemove) {
+				movingUp = true;
+			}
+		}
+		instance.addButton.transform.Translate (0, 70, 0);
+		spellLines.Remove (toRemove);
+		Destroy (toRemove);
 	}
 
 	void Update () {
@@ -234,14 +265,19 @@ public class Levelmaker : MonoBehaviour {
 		string s = System.IO.File.ReadAllText("Assets/Resources/" + loadInput.text + ".txt");
 		foreach (string line in s.Split('\n')) {
 			string[] item = line.Split (',');
-			int3 pos = new int3 (
-				           int.Parse (item [0]),
-				           int.Parse (item [1]),
-				           int.Parse (item [2]));
-			foreach (block b in blocktypes) {
-				if (b.name == item [3]) {
-					MakeBlock (pos, b);
-					break;
+			if (item [0] == "spells") {
+				AddSpellLine ();
+				spellLines[spellLines.Count-1].GetComponent<SpellPanel>().SetSpells(line);
+			} else {
+				int3 pos = new int3 (
+					          int.Parse (item [0]),
+					          int.Parse (item [1]),
+					          int.Parse (item [2]));
+				foreach (block b in blocktypes) {
+					if (b.name == item [3]) {
+						MakeBlock (pos, b);
+						break;
+					}
 				}
 			}
 		}
@@ -263,6 +299,9 @@ public class Levelmaker : MonoBehaviour {
 				pos.y.ToString (),
 				pos.z.ToString (),
 				data.blockType.name);
+		}
+		foreach (GameObject obj in spellLines) {
+			s += obj.GetComponent<SpellPanel> ().GetSpells () + "\n";
 		}
 		s = s.TrimEnd ('\n');
 		System.IO.File.WriteAllText("Assets/Resources/" + saveInput.text + ".txt", s);
