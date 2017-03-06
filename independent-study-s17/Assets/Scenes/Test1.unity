@@ -364,6 +364,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isPlayer1: 0
   selector: {fileID: 989692623}
+  inventorySize: 3
+  spellInventory: 
 --- !u!23 &816263240
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -755,6 +757,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isPlayer1: 1
   selector: {fileID: 1688101386}
+  inventorySize: 3
+  spellInventory: 
 --- !u!1001 &1317689080
 Prefab:
   m_ObjectHideFlags: 0
@@ -1232,8 +1236,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   players:
-  - {fileID: 582861849}
-  - {fileID: 816263242}
+  - {fileID: 1158964521}
+  - {fileID: 816263238}
   selectors:
   - {fileID: 1688101382}
   - {fileID: 989692619}

@@ -8,7 +8,7 @@ public class SpellManager : MonoBehaviour {
 
 	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK};
 	private spell[] currentSpell = new spell[]{spell.PUSH,spell.CREATE_BLOCK};
-	public Transform[] players;
+	public Player[] players;
 
 	public GameObject[] selectors;
 	private Material[] selectorMaterials;
@@ -37,10 +37,13 @@ public class SpellManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		for (int i = 0; i < players.Length; i++) {
+			//uncomment this when we are done with testing
+			//currentSpell [i] = players [i].getCurrentSpell ();
+
 			if (Input.GetButton("Spell"+i.ToString())) {
 				if (spellProgress [i] >= 1) {
 					spellProgress [i] = -1;
-					Vector3 playerPos = getTile(players [i].position);
+					Vector3 playerPos = getTile(players [i].transform.position);
 					int otherPlayer = -1;
 					Vector3 spellPos = selectors [i].transform.position;
 					for (int j = 0; j < players.Length; j++) {
@@ -60,7 +63,7 @@ public class SpellManager : MonoBehaviour {
 							if (otherPlayer == -1) {
 								spellableBlock.ApplySpell (currentSpell [i], playerPos, Vector3.zero);
 							} else {
-								spellableBlock.ApplySpell (getSpellCombo(currentSpell [i],currentSpell[otherPlayer]), playerPos, getTile (players [otherPlayer].position));
+								spellableBlock.ApplySpell (getSpellCombo(currentSpell [i],currentSpell[otherPlayer]), playerPos, getTile (players [otherPlayer].transform.position));
 							}
 						}
 					}
