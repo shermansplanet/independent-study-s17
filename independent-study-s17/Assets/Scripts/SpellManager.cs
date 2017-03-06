@@ -13,6 +13,10 @@ public class SpellManager : MonoBehaviour {
 	public GameObject[] selectors;
 	private Material[] selectorMaterials;
 
+	//needed to instantiate new blocks
+	public GameObject tile;
+	public GameObject Pushblock;
+
 	private float[] spellProgress = new float[]{0,0};
 
 	// Use this for initialization
@@ -61,13 +65,13 @@ public class SpellManager : MonoBehaviour {
 						}
 					}
 					//CREATE BLOCK/PUSHBLOCK
-					else if (currentSpell [i].Equals(spell.CREATE_BLOCK)) {
+					else if (currentSpell [i].Equals(spell.CREATE_BLOCK) && !SpawnTiles.tileExists (spellPos)) {
 						if (otherPlayer == -1) {
-							GameObject tile = Instantiate (Resources.FindObjectsOfTypeAll(typeof(TileBehavior))[0], spellPos, Quaternion.Euler (0,0,0)) as GameObject;
+							Instantiate(tile, spellPos, Quaternion.Euler (0,0,0));
 							SpawnTiles.blocks.Add (spellPos, tile);
-						} else {
-							GameObject p = Instantiate (Resources.FindObjectsOfTypeAll(typeof(Pushblock))[0], spellPos, Quaternion.Euler (0,0,0)) as GameObject;
-							SpawnTiles.blocks.Add (spellPos, p);
+						} else if (getSpellCombo(currentSpell [i], currentSpell[otherPlayer]).Equals(spell.CREATE_PUSHBLOCK)) {
+							Instantiate(Pushblock, spellPos, Quaternion.Euler (0,0,0));
+							SpawnTiles.blocks.Add (spellPos, Pushblock);
 						}
 					}
 

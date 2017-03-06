@@ -1237,6 +1237,8 @@ MonoBehaviour:
   selectors:
   - {fileID: 1688101382}
   - {fileID: 989692619}
+  tile: {fileID: 1259261463863458, guid: 7ea8e8b2578e23c42a84b13256de309f, type: 2}
+  Pushblock: {fileID: 1355366036521634, guid: 1483bc374af77b04c87e035447dca511, type: 2}
 --- !u!4 &2015973763
 Transform:
   m_ObjectHideFlags: 0
