@@ -8,13 +8,6 @@ public class Pushblock : Spellable {
 		switch(spellType){
 		case SpellManager.spell.PUSH:
 			Vector3 newPosition = SpawnTiles.roundVector (transform.position * 2 - casterPosition);
-
-
-			//The first pushblock initially in the scene works fine, but the new ones I instantiate all have super weird transforms even they appear in the correct place
-			//Uncomment this line to see the bug. 
-			//Debug.Log (this.transform.position);
-
-
 			if (!SpawnTiles.tileExists (newPosition)) {
 				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (transform.position));
 				SpawnTiles.blocks.Add (newPosition, gameObject);

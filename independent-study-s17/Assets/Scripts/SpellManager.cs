@@ -71,11 +71,11 @@ public class SpellManager : MonoBehaviour {
 					//CREATE BLOCK/PUSHBLOCK
 					else if (currentSpell [i].Equals(spell.CREATE_BLOCK) && !SpawnTiles.tileExists (spellPos)) {
 						if (otherPlayer == -1) {
-							Instantiate(tile, spellPos, Quaternion.Euler (0,0,0));
-							SpawnTiles.blocks.Add (spellPos, tile);
+							GameObject tileClone = Instantiate(tile, spellPos, Quaternion.Euler (0,0,0));
+							SpawnTiles.blocks.Add (spellPos, tileClone);
 						} else if (getSpellCombo(currentSpell [i], currentSpell[otherPlayer]).Equals(spell.CREATE_PUSHBLOCK)) {
-							Instantiate(Pushblock, spellPos, Quaternion.Euler (0,0,0));
-							SpawnTiles.blocks.Add (spellPos, Pushblock);
+							GameObject pushblockClone = Instantiate(Pushblock, spellPos, Quaternion.Euler (0,0,0));
+							SpawnTiles.blocks.Add (spellPos, pushblockClone);
 						}
 					}
 

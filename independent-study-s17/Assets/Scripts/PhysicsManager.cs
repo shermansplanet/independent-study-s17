@@ -30,11 +30,12 @@ public class PhysicsManager : MonoBehaviour {
 		foreach (Pushblock p in pushables) {
 			Vector3 below = new Vector3 (p.transform.position.x, p.transform.position.y - 2, p.transform.position.z);
 			if (!SpawnTiles.tileExists (below)) {
+				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (p.transform.position));
 				p.transform.Translate(Vector3.down*2);
+				SpawnTiles.blocks.Add (below, GameObject.FindGameObjectWithTag("Pushblock"));
 			}
 			if (p.transform.position.y < killPlane) {
 				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (p.transform.position));
-				//pushables.Remove (p);
 				Destroy (p.gameObject);
 			}
 		}
