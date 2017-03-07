@@ -7,6 +7,7 @@ public class SpellManager : MonoBehaviour {
 	const float spellSpeed = 1;
 
 	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK};
+	//this is currently initialized this way for testing
 	private spell[] currentSpell = new spell[]{spell.PUSH,spell.CREATE_BLOCK};
 	public Player[] players;
 
