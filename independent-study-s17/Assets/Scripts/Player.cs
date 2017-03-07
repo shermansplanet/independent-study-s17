@@ -7,20 +7,25 @@ public class Player : MonoBehaviour {
 	public bool isPlayer1;
 	public Transform selector;
 
-	public int inventorySize = 3;
+	private int inventorySize = 2;
 	private int currentIndex = 0;
 
 	//set default spells 
-	public List<SpellManager.spell> spellInventory = new List<SpellManager.spell> {
-		SpellManager.spell.PUSH
+	private List<SpellManager.spell> spellInventory = new List<SpellManager.spell> {
+		SpellManager.spell.PUSH,
+		SpellManager.spell.CREATE_BLOCK
 	};
-		
+
 	public SpellManager.spell getCurrentSpell () {
-		return spellInventory [currentIndex];
+		if (currentIndex < spellInventory.Count - 1) {
+			return spellInventory [currentIndex];
+		} else {
+			return SpellManager.spell.NO_EFFECT;
+		}
 	}
 
 	public void rotateSpell () {
-		if (currentIndex < inventorySize - 1) {
+		if (currentIndex < inventorySize) {
 			currentIndex += 1;
 		} else {
 			currentIndex = 0;
