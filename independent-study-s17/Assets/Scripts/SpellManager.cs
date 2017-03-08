@@ -40,7 +40,6 @@ public class SpellManager : MonoBehaviour {
 		for (int i = 0; i < players.Length; i++) {
 			//uncomment this when we are done with testing
 			//currentSpell [i] = players [i].getCurrentSpell ();
-
 			if (Input.GetButton("Spell"+i.ToString())) {
 				if (spellProgress [i] >= 1) {
 					spellProgress [i] = -1;

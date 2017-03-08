@@ -12,7 +12,6 @@ public class PlayerManager : MonoBehaviour {
 
 			if (Input.GetButtonDown ("RotateSpell" + i.ToString())) {
 				players [i].rotateSpell();
-				Debug.Log (players [i].getCurrentSpell ());
 			}
 		}
 	}
