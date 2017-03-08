@@ -6,6 +6,7 @@ public class Player : MonoBehaviour {
 
 	public bool isPlayer1;
 	public Transform selector;
+	public Vector3 pos;
 
 	private int inventorySize = 3;
 

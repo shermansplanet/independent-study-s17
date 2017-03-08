@@ -8,7 +8,7 @@ public class SpellManager : MonoBehaviour {
 
 	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK};
 	//this is currently initialized this way for testing
-	private spell[] currentSpell = new spell[]{spell.PUSH,spell.CREATE_BLOCK};
+	private spell[] currentSpell = new spell[]{spell.PUSH,spell.PUSH};
 	public Player[] players;
 
 	public GameObject[] selectors;

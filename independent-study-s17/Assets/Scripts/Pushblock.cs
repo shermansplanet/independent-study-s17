@@ -8,23 +8,27 @@ public class Pushblock : Spellable {
 		switch(spellType){
 		case SpellManager.spell.PUSH:
 			Vector3 newPosition = SpawnTiles.roundVector (transform.position * 2 - casterPosition);
-			if (!SpawnTiles.tileExists (newPosition)) {
+			if (SpawnTiles.tileIsFree (newPosition)) {
 				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (transform.position));
 				SpawnTiles.blocks.Add (newPosition, gameObject);
 				transform.position = newPosition;
 			}
 			break;
 		case SpellManager.spell.DOUBLE_PUSH:
-			Vector3 midPosition = SpawnTiles.roundVector (transform.position * 2 - casterPosition);
-			newPosition = SpawnTiles.roundVector (transform.position * 3 - casterPosition * 2);
-			if (!SpawnTiles.tileExists (midPosition)) {
-				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (transform.position));
-				if (!SpawnTiles.tileExists (newPosition)) {
-					SpawnTiles.blocks.Add (newPosition, gameObject);
-					transform.position = newPosition;
-				} else {
-					SpawnTiles.blocks.Add (midPosition, gameObject);
-					transform.position = midPosition;
+			SpawnTiles.blocks.Remove (SpawnTiles.roundVector (transform.position));
+			if (SpawnTiles.roundVector (casterPosition-transform.position) == SpawnTiles.roundVector (transform.position - casterPosition2)) {
+				Destroy (gameObject);
+			} else {
+				Vector3 midPosition = SpawnTiles.roundVector (transform.position * 2 - casterPosition);
+				newPosition = SpawnTiles.roundVector (transform.position * 3 - casterPosition * 2);
+				if (SpawnTiles.tileIsFree (midPosition)) {
+					if (SpawnTiles.tileIsFree (newPosition)) {
+						SpawnTiles.blocks.Add (newPosition, gameObject);
+						transform.position = newPosition;
+					} else {
+						SpawnTiles.blocks.Add (midPosition, gameObject);
+						transform.position = midPosition;
+					}
 				}
 			}
 			break;
