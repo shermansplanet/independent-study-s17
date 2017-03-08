@@ -9,7 +9,7 @@ public class Player : MonoBehaviour {
 
 	private int inventorySize = 3;
 
-	private SpellManager.spell currentSpell = SpellManager.spell.CREATE_BLOCK;
+	private SpellManager.spell currentSpell = SpellManager.spell.PUSH;
 
 	//set default spells 
 	private List<SpellManager.spell> spellInventory = new List<SpellManager.spell> {
