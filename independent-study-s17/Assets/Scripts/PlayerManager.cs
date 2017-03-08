@@ -8,10 +8,9 @@ public class PlayerManager : MonoBehaviour {
 
 	void Update () {
 		for (int i = 0; i < players.Length; ++i) {
-			Move.ObjectMove ("Vertical"+i.ToString(), "Horizontal"+i.ToString(), players [i]);
-			float rotate = Input.GetAxis ("RotateSpell" + i.ToString ());
-			//Debug.Log (rotate);
-			if (rotate > 0) {
+			Move.ObjectMove ("Vertical" + i.ToString (), "Horizontal" + i.ToString (), players [i]);
+
+			if (Input.GetButtonDown ("RotateSpell" + i.ToString())) {
 				players [i].rotateSpell();
 				Debug.Log (players [i].getCurrentSpell ());
 			}

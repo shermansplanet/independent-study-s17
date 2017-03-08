@@ -7,8 +7,9 @@ public class Player : MonoBehaviour {
 	public bool isPlayer1;
 	public Transform selector;
 
-	private int inventorySize = 2;
-	private int currentIndex = 0;
+	private int inventorySize = 3;
+
+	private SpellManager.spell currentSpell = SpellManager.spell.CREATE_BLOCK;
 
 	//set default spells 
 	private List<SpellManager.spell> spellInventory = new List<SpellManager.spell> {
@@ -17,18 +18,18 @@ public class Player : MonoBehaviour {
 	};
 
 	public SpellManager.spell getCurrentSpell () {
-		if (currentIndex < spellInventory.Count - 1) {
-			return spellInventory [currentIndex];
-		} else {
-			return SpellManager.spell.NO_EFFECT;
-		}
+		return currentSpell;
 	}
 
 	public void rotateSpell () {
-		if (currentIndex < inventorySize) {
-			currentIndex += 1;
-		} else {
-			currentIndex = 0;
+		int currentIndex = spellInventory.IndexOf (currentSpell);
+		if (currentIndex != -1) {
+			//if last spell
+			if (currentIndex == spellInventory.Count - 1) {
+				currentSpell = spellInventory [0];
+			} else {
+				currentSpell = spellInventory [currentIndex + 1];
+			}
 		}
 	}
 
