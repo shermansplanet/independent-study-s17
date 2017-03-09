@@ -6,6 +6,12 @@ public class PlayerManager : MonoBehaviour {
 	
 	public Player[] players;
 
+	public static Player[] staticPlayers;
+
+	void Start(){
+		staticPlayers = players;
+	}
+
 	void Update () {
 		for (int i = 0; i < players.Length; ++i) {
 			Move.ObjectMove ("Vertical" + i.ToString (), "Horizontal" + i.ToString (), players [i]);

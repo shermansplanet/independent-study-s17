@@ -24,6 +24,8 @@ public class Move : MonoBehaviour {
 				Mathf.Round (p.transform.position.y/2),
 				Mathf.Round (p.transform.position.z/2))*2;
 
+			p.pos = currentTile;
+
 			p.transform.rotation = Quaternion.LookRotation (positionOffset);
 
 			int normalizedX = positionOffset.x > 0 ? 2 : -2;
