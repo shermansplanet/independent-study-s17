@@ -15,13 +15,14 @@ public class Pushblock : Spellable {
 			}
 			break;
 		case SpellManager.spell.DOUBLE_PUSH:
-			SpawnTiles.blocks.Remove (SpawnTiles.roundVector (transform.position));
 			if (SpawnTiles.roundVector (casterPosition-transform.position) == SpawnTiles.roundVector (transform.position - casterPosition2)) {
+				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (transform.position));
 				Destroy (gameObject);
 			} else {
 				Vector3 midPosition = SpawnTiles.roundVector (transform.position * 2 - casterPosition);
 				newPosition = SpawnTiles.roundVector (transform.position * 3 - casterPosition * 2);
 				if (SpawnTiles.tileIsFree (midPosition)) {
+					SpawnTiles.blocks.Remove (SpawnTiles.roundVector (transform.position));
 					if (SpawnTiles.tileIsFree (newPosition)) {
 						SpawnTiles.blocks.Add (newPosition, gameObject);
 						transform.position = newPosition;
