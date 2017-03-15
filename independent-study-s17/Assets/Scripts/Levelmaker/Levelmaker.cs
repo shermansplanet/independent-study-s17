@@ -12,37 +12,6 @@ public class Levelmaker : MonoBehaviour {
 		public Color color;
 	};
 
-	class int3{
-		public int x, y, z;
-		public int3(int x, int y, int z){
-			this.x = x;
-			this.y = y;
-			this.z = z;
-		}
-		public Vector3 ToVector(){
-			return new Vector3 (x, y, z);
-		}
-		public override bool Equals ( object obj )
-		{
-			if ( obj == null ){
-				return false;
-			}
-
-			if ( this.GetType ( ) != obj.GetType ( ) ){
-				return false;
-			}
-
-			return Equals ( ( int3 ) obj );
-		}
-		public bool Equals(int3 other){
-			return other.x == x && other.y == y && other.z == z;
-		}
-		public override int GetHashCode()
-		{
-			return x + y * 10 + z * 100;
-		}
-	}
-
 	class blockData{
 		public block blockType;
 		public int3 position;
@@ -71,8 +40,10 @@ public class Levelmaker : MonoBehaviour {
 	public InputField saveInput;
 	public InputField loadInput;
 	public GameObject spellLinePrefab;
+	public GameObject levelLinePrefab;
 	public Transform canvas;
 	public Transform addButton;
+	public Transform addLevelButton;
 
 	private bool placing = false;
 	private bool deleting = false;
@@ -85,6 +56,7 @@ public class Levelmaker : MonoBehaviour {
 	private static Levelmaker instance;
 
 	private static List<GameObject> spellLines = new List<GameObject>();
+	private static List<GameObject> levelLines = new List<GameObject>();
 	private Dictionary<int3,blockData> blocksInScene = new Dictionary<int3,blockData>();
 
 	readonly Vector3[] directions = new Vector3[]{Vector3.right,Vector3.up,Vector3.forward,Vector3.back,Vector3.down,Vector3.left};
@@ -131,6 +103,16 @@ public class Levelmaker : MonoBehaviour {
 		addButton.transform.Translate (0, -70, 0);
 	}
 
+	public void AddLevelLine(){
+		GameObject line = Instantiate (levelLinePrefab);
+		levelLines.Add (line);
+		line.transform.SetParent (addButton.transform);
+		float h = addLevelButton.GetComponent<RectTransform> ().offsetMax.y;
+		line.GetComponent<RectTransform> ().offsetMax = new Vector2 (-60, h);
+		line.GetComponent<RectTransform> ().offsetMin = new Vector2 (-300, h - 50);
+		addLevelButton.transform.Translate (0, -70, 0);
+	}
+
 	public static void RemoveSpellLine(GameObject toRemove){
 		bool movingUp = false;
 		for (int i = 0; i < spellLines.Count; i++) {
@@ -143,6 +125,21 @@ public class Levelmaker : MonoBehaviour {
 		}
 		instance.addButton.transform.Translate (0, 70, 0);
 		spellLines.Remove (toRemove);
+		Destroy (toRemove);
+	}
+
+	public static void RemoveLevelLine(GameObject toRemove){
+		bool movingUp = false;
+		for (int i = 0; i < levelLines.Count; i++) {
+			if (movingUp) {
+				levelLines [i].transform.Translate (0, 70, 0);
+			}
+			if (levelLines [i] == toRemove) {
+				movingUp = true;
+			}
+		}
+		instance.addLevelButton.transform.Translate (0, 70, 0);
+		levelLines.Remove (toRemove);
 		Destroy (toRemove);
 	}
 
@@ -263,11 +260,15 @@ public class Levelmaker : MonoBehaviour {
 	public void Load(){
 		Clear ();
 		string s = System.IO.File.ReadAllText("Assets/Resources/" + loadInput.text + ".txt");
+		saveInput.text = loadInput.text;
 		foreach (string line in s.Split('\n')) {
 			string[] item = line.Split (',');
 			if (item [0] == "spells") {
 				AddSpellLine ();
 				spellLines[spellLines.Count-1].GetComponent<SpellPanel>().SetSpells(line);
+			} else if (item [0] == "prereq") {
+				AddLevelLine ();
+				levelLines[levelLines.Count-1].GetComponent<LevelPanel>().SetText(item[1]);
 			} else {
 				int3 pos = new int3 (
 					          int.Parse (item [0]),
@@ -287,6 +288,12 @@ public class Levelmaker : MonoBehaviour {
 		foreach (blockData data in blocksInScene.Values) {
 			Destroy (data.obj);
 		}
+		while (spellLines.Count > 0) {
+			RemoveSpellLine (spellLines [0]);
+		}
+		while (levelLines.Count > 0) {
+			RemoveLevelLine (levelLines [0]);
+		}
 		blocksInScene.Clear ();
 	}
 
@@ -302,6 +309,9 @@ public class Levelmaker : MonoBehaviour {
 		}
 		foreach (GameObject obj in spellLines) {
 			s += obj.GetComponent<SpellPanel> ().GetSpells () + "\n";
+		}
+		foreach (GameObject obj in levelLines) {
+			s += "prereq," + obj.GetComponent<LevelPanel> ().GetText () + "\n";
 		}
 		s = s.TrimEnd ('\n');
 		System.IO.File.WriteAllText("Assets/Resources/" + saveInput.text + ".txt", s);
