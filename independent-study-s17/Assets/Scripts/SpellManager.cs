@@ -109,7 +109,7 @@ public class SpellManager : MonoBehaviour {
 		}
 	}
 
-	spell getSpellCombo(spell spell1, spell spell2){
+	spell getSpellCombo(spell spell1, spell spell2, bool switched = false){
 		switch (spell1) {
 		case spell.PUSH:
 			switch (spell2) {
@@ -130,6 +130,6 @@ public class SpellManager : MonoBehaviour {
 			}
 			break;
 		}
-		return spell.NO_EFFECT;
+		return switched ? spell.NO_EFFECT : getSpellCombo(spell2,spell1,true);
 	}
 }
