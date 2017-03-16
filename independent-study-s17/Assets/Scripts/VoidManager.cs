@@ -23,4 +23,8 @@ public class VoidManager : MonoBehaviour {
 			inventory.Remove (g);
 		}
 	}
+
+	public List<GameObject> getAllObjects() {
+		return inventory;
+	}
 }

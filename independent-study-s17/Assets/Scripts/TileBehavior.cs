@@ -8,5 +8,4 @@ public class TileBehavior : MonoBehaviour {
 	public bool isPlayer1Spawn = false;
 	public bool isPlayer2Spawn = false; 
 	public bool isGoal = false;
-
 }

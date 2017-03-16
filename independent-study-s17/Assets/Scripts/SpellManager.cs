@@ -8,7 +8,7 @@ public class SpellManager : MonoBehaviour {
 
 	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK,CREATE_VOID,CREATE_RAMP};
 	//this is currently initialized this way for testing 
-	private spell[] currentSpell = new spell[]{spell.CREATE_VOID,spell.CREATE_BLOCK};
+	private spell[] currentSpell = new spell[]{spell.PUSH,spell.CREATE_VOID};
 	public Player[] players;
 
 	public GameObject[] selectors;
@@ -59,6 +59,17 @@ public class SpellManager : MonoBehaviour {
 					//PUSH and DOUBlE PUSH
 					if (currentSpell [i].Equals (spell.PUSH) && SpawnTiles.tileExists (spellPos)) {
 						Spellable spellableBlock = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)].GetComponent<Spellable> ();
+						//should also handle void blocks
+						VoidManager v = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)].GetComponent<VoidManager> ();
+						if (v != null) {
+							foreach (GameObject g in v.getAllObjects()) {
+								if (g.GetComponent<Spellable>() != null) {
+									spellableBlock = g.GetComponent<Spellable> ();
+									break;
+								}
+							}
+						}
+						//back to your regullarly scheduled push...
 						if (spellableBlock != null) {
 							if (otherPlayer == -1) {
 								spellableBlock.ApplySpell (currentSpell [i], playerPos, Vector3.zero);
@@ -79,12 +90,16 @@ public class SpellManager : MonoBehaviour {
 					} 
 					//CREAT VOID/RAMP
 					else if (currentSpell [i].Equals (spell.CREATE_VOID)) {
-						if (otherPlayer == -1) {
+						//no void on top of another void
+						if (otherPlayer == -1 && 
+							(!SpawnTiles.tileExists(spellPos) || 
+								SpawnTiles.blocks[SpawnTiles.roundVector (spellPos)].GetComponent<VoidManager>() == null)) {
 							GameObject voidClone = Instantiate (Voidblock, spellPos, Quaternion.Euler (0, 0, 0));
-							//VoidManager v = (VoidManager)voidClone.GetComponent (typeof(VoidManager));
+							VoidManager v = voidClone.GetComponent<VoidManager>();
 							if (SpawnTiles.tileExists (spellPos)) {
-								//v.addObject (SpawnTiles.blocks [spellPos]);
-								Destroy (SpawnTiles.blocks[spellPos]);
+								GameObject g = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)];
+								v.addObject (g);
+								Destroy (v.GetComponent<BoxCollider>());
 								SpawnTiles.blocks.Remove (spellPos);
 							}
 							SpawnTiles.blocks.Add (spellPos, voidClone);
