@@ -10,6 +10,8 @@ public class PhysicsManager : MonoBehaviour {
 	//remember we are in units of 2 (that's why all the random 2's)
 	public int killPlane = -8;
 
+	public GameObject waterBlock;
+
 	void Update () {
 		if (Time.time >= nextTime) {
 			simulatePhysics ();
@@ -19,6 +21,7 @@ public class PhysicsManager : MonoBehaviour {
 
 	void simulatePhysics(){
 
+		//Pushblock physics
 		List<Pushblock> pushables =  new List<Pushblock>();
 
 		foreach (GameObject x in GameObject.FindGameObjectsWithTag("Pushblock")) {
@@ -37,6 +40,69 @@ public class PhysicsManager : MonoBehaviour {
 			if (p.transform.position.y < killPlane) {
 				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (p.transform.position));
 				Destroy (p.gameObject);
+			}
+		}
+
+		//Water physics
+		List<WaterManager> waterblocks = new List<WaterManager>();
+
+		foreach (GameObject w in GameObject.FindGameObjectsWithTag("Water")) {
+			if (w != null) {
+				waterblocks.Add (w.GetComponent<WaterManager> ());
+			}
+		}
+
+		foreach (WaterManager wtr in waterblocks) {
+			Vector3 below = new Vector3 (wtr.transform.position.x, wtr.transform.position.y - 2, wtr.transform.position.z);
+			Vector3 next = new Vector3 (0,0,0);
+			switch (wtr.getDirection ()) {
+			case 0:
+				next = new Vector3 (wtr.transform.position.x + 2, wtr.transform.position.y, wtr.transform.position.z);
+				break;
+			case 90:
+				next = new Vector3 (wtr.transform.position.x, wtr.transform.position.y, wtr.transform.position.z - 2);
+				break;
+			case 180:
+				next = new Vector3 (wtr.transform.position.x - 2, wtr.transform.position.y, wtr.transform.position.z);
+				break;
+			case 270:
+				next = new Vector3 (wtr.transform.position.x, wtr.transform.position.y, wtr.transform.position.z + 2);
+				break;
+			}
+
+
+			//flow down
+			if (!SpawnTiles.tileExists (below) && below.y > killPlane) {
+				GameObject waterStream = Instantiate (waterBlock, below, Quaternion.Euler (0,0,0));
+				SpawnTiles.blocks.Add (below, waterStream);
+				waterStream.GetComponent<WaterManager> ().changeParent (wtr);
+				if (waterStream.GetComponent<WaterManager> ().isSource ()) {
+					waterStream.GetComponent<WaterManager> ().changeType ();
+				}
+				waterStream.GetComponent<WaterManager> ().changeDirection (wtr.getDirection ());
+			}
+
+			//flow to next tile
+			else if (!SpawnTiles.tileExists (next) && SpawnTiles.tileExists (below) && SpawnTiles.blocks[SpawnTiles.roundVector (below)].GetComponent<WaterManager>() == null) {
+				GameObject waterStream = Instantiate (waterBlock, next, Quaternion.Euler (0,0,0));
+				SpawnTiles.blocks.Add (next, waterStream);
+				waterStream.GetComponent<WaterManager> ().changeParent (wtr);
+				if (waterStream.GetComponent<WaterManager> ().isSource ()) {
+					waterStream.GetComponent<WaterManager> ().changeType ();
+				}
+				waterStream.GetComponent<WaterManager> ().changeDirection (wtr.getDirection ());
+			}
+
+			//destroy if too low
+			if (wtr.transform.position.y < killPlane) {
+				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (wtr.transform.position));
+				Destroy (wtr.gameObject);
+			}
+
+			//stop if parent is destoryed
+			if (!wtr.isSource () && wtr.getParent () == null) {
+				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (wtr.transform.position));
+				Destroy (wtr.gameObject);
 			}
 		}
 	}

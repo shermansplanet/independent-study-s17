@@ -43,7 +43,8 @@ public class Move : MonoBehaviour {
 
 			if (!SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, -2, 0)) ||
 				(SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, 0, 0)) &&
-				SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (normalizedX, 0, 0))].GetComponent<VoidManager>() == null)) {
+				SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (normalizedX, 0, 0))].GetComponent<VoidManager>() == null &&
+				SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (normalizedX, 0, 0))].GetComponent<WaterManager>() == null)) {
 				if (exceedingBoundaryX) {
 					positionOffset.x = 0;
 					onEdge = true;
@@ -51,7 +52,8 @@ public class Move : MonoBehaviour {
 			}
 			if (!SpawnTiles.tileExists (currentTile + new Vector3 (0, -2, normalizedZ)) ||
 				(SpawnTiles.tileExists (currentTile + new Vector3 (0, 0, normalizedZ)) &&
-				SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (0, 0, normalizedZ))].GetComponent<VoidManager>() == null)) {
+					SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (0, 0, normalizedZ))].GetComponent<VoidManager>() == null &&
+					SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (0, 0, normalizedZ))].GetComponent<WaterManager>() == null)) {
 				if (exceedingBoundaryZ) {
 					positionOffset.z = 0;
 					onEdge = true;
@@ -60,7 +62,8 @@ public class Move : MonoBehaviour {
 
 			if (!SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, -2, normalizedZ)) ||
 				(SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, 0, normalizedZ)) &&
-				SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (normalizedX, 0, normalizedZ))].GetComponent<VoidManager>() == null)) {
+					SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (normalizedX, 0, normalizedZ))].GetComponent<VoidManager>() == null &&
+					SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (normalizedX, 0, normalizedZ))].GetComponent<WaterManager>() == null)) {
 				if (exceedingBoundaryX && exceedingBoundaryZ && !onEdge) {
 					positionOffset.x = 0;
 					positionOffset.z = 0;
