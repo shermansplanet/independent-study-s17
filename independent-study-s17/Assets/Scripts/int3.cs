@@ -9,6 +9,11 @@ public class int3{
 		this.y = y;
 		this.z = z;
 	}
+	public int3(int3 clone){
+		this.x = clone.x;
+		this.y = clone.y;
+		this.z = clone.z;
+	}
 	public Vector3 ToVector(){
 		return new Vector3 (x, y, z);
 	}
@@ -47,5 +52,15 @@ public class int3{
 	public override int GetHashCode()
 	{
 		return x + y * 10 + z * 100;
+	}
+
+	public static int3 operator -(int3 a){
+		return new int3 (-a.x, -a.y, -a.z);
+	}
+	public static int3 operator -(int3 a,int3 b){
+		return new int3 (a.x-b.x, a.y-b.y, a.z-b.z);
+	}
+	public static int3 operator +(int3 a,int3 b){
+		return new int3 (a.x+b.x, a.y+b.y, a.z+b.z);
 	}
 }
