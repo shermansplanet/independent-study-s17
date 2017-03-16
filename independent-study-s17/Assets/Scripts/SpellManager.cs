@@ -91,13 +91,15 @@ public class SpellManager : MonoBehaviour {
 					//CREAT VOID/RAMP
 					else if (currentSpell [i].Equals (spell.CREATE_VOID)) {
 						//no void on top of another void
-						if (otherPlayer == -1 && 
-							(!SpawnTiles.tileExists(spellPos) || 
-								SpawnTiles.blocks[SpawnTiles.roundVector (spellPos)].GetComponent<VoidManager>() == null)) {
+						if (otherPlayer == -1 &&
+							(!SpawnTiles.tileExists(SpawnTiles.roundVector (spellPos)) ||
+							(SpawnTiles.tileExists(SpawnTiles.roundVector (spellPos)) &&
+									(SpawnTiles.blocks[SpawnTiles.roundVector (spellPos)].GetComponent<VoidManager>() == null)))) {
 							GameObject voidClone = Instantiate (Voidblock, spellPos, Quaternion.Euler (0, 0, 0));
 							VoidManager v = voidClone.GetComponent<VoidManager>();
 							if (SpawnTiles.tileExists (spellPos)) {
 								GameObject g = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)];
+								g.GetComponent<MeshRenderer> ().enabled = false;
 								v.addObject (g);
 								SpawnTiles.blocks.Remove (spellPos);
 							}
