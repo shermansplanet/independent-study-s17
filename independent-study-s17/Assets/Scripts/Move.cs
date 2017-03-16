@@ -41,23 +41,26 @@ public class Move : MonoBehaviour {
 			bool exceedingBoundaryZ = (positionOffset.z > 0 && positionWithinTile.z > RADIUS) || (positionOffset.z < 0 && positionWithinTile.z < -RADIUS);
 			bool onEdge = false;
 
-			if (!SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, -2, 0))
-				|| SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, 0, 0))) {
+			if (!SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, -2, 0)) ||
+				(SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, 0, 0)) &&
+				SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (normalizedX, 0, 0))].GetComponent<VoidManager>() == null)) {
 				if (exceedingBoundaryX) {
 					positionOffset.x = 0;
 					onEdge = true;
 				}
 			}
-			if (!SpawnTiles.tileExists (currentTile + new Vector3 (0, -2, normalizedZ))
-				|| SpawnTiles.tileExists (currentTile + new Vector3 (0, 0, normalizedZ))) {
+			if (!SpawnTiles.tileExists (currentTile + new Vector3 (0, -2, normalizedZ)) ||
+				(SpawnTiles.tileExists (currentTile + new Vector3 (0, 0, normalizedZ)) &&
+				SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (0, 0, normalizedZ))].GetComponent<VoidManager>() == null)) {
 				if (exceedingBoundaryZ) {
 					positionOffset.z = 0;
 					onEdge = true;
 				}
 			}
 
-			if (!SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, -2, normalizedZ))
-				|| SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, 0, normalizedZ))) {
+			if (!SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, -2, normalizedZ)) ||
+				(SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, 0, normalizedZ)) &&
+				SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (normalizedX, 0, normalizedZ))].GetComponent<VoidManager>() == null)) {
 				if (exceedingBoundaryX && exceedingBoundaryZ && !onEdge) {
 					positionOffset.x = 0;
 					positionOffset.z = 0;

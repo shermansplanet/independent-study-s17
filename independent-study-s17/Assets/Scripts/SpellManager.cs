@@ -99,7 +99,6 @@ public class SpellManager : MonoBehaviour {
 							if (SpawnTiles.tileExists (spellPos)) {
 								GameObject g = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)];
 								v.addObject (g);
-								Destroy (v.GetComponent<BoxCollider>());
 								SpawnTiles.blocks.Remove (spellPos);
 							}
 							SpawnTiles.blocks.Add (spellPos, voidClone);
