@@ -24,6 +24,10 @@ public class VoidManager : MonoBehaviour {
 		}
 	}
 
+	public bool hasObject(GameObject g) {
+		return inventory.Contains (g);
+	}
+
 	public List<GameObject> getAllObjects() {
 		return inventory;
 	}

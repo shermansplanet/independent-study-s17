@@ -82,9 +82,20 @@ public class PhysicsManager : MonoBehaviour {
 				waterStream.GetComponent<WaterManager> ().changeDirection (wtr.getDirection ());
 			}
 
-			//flow to next tile
-			else if (!SpawnTiles.tileExists (next) && SpawnTiles.tileExists (below) && SpawnTiles.blocks[SpawnTiles.roundVector (below)].GetComponent<WaterManager>() == null) {
-				GameObject waterStream = Instantiate (waterBlock, next, Quaternion.Euler (0,0,0));
+			//flow to next tile if free or void (that doesn't already contain water), and there is not water below
+			else if ((!SpawnTiles.tileExists (next) ||
+				SpawnTiles.blocks[SpawnTiles.roundVector(next)].GetComponent<VoidManager>() != null ||
+				!SpawnTiles.blocks[SpawnTiles.roundVector(next)].GetComponent<VoidManager>().hasObject(wtr.gameObject)) && 
+				SpawnTiles.tileExists (below) && 
+				SpawnTiles.blocks[SpawnTiles.roundVector (below)].GetComponent<WaterManager>() == null) {
+				//add water to void if there is a void
+				GameObject waterStream = null;
+				if (SpawnTiles.blocks [SpawnTiles.roundVector (next)].GetComponent<VoidManager> () != null) {
+					waterStream = Instantiate (waterBlock, next, Quaternion.Euler (0, 0, 0));
+					SpawnTiles.blocks [SpawnTiles.roundVector (next)].GetComponent<VoidManager> ().addObject (waterStream);
+				} else {
+					waterStream = Instantiate (waterBlock, next, Quaternion.Euler (0, 0, 0));
+				}
 				SpawnTiles.blocks.Add (next, waterStream);
 				waterStream.GetComponent<WaterManager> ().changeParent (wtr);
 				if (waterStream.GetComponent<WaterManager> ().isSource ()) {
