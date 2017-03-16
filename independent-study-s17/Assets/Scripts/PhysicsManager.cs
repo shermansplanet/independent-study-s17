@@ -67,7 +67,7 @@ public class PhysicsManager : MonoBehaviour {
 			Vector3 below = new Vector3 (wtr.transform.position.x, wtr.transform.position.y - 2, wtr.transform.position.z);
 			Vector3 next = new Vector3 (0,0,0);
 			next = getNextWater (wtr);
-
+			Debug.Log (next);
 			//flow down
 			if (!SpawnTiles.tileExists (below) && below.y > killPlane) {
 				GameObject waterStream = Instantiate (waterBlock, below, Quaternion.Euler (0,0,0));
@@ -89,6 +89,7 @@ public class PhysicsManager : MonoBehaviour {
 				GameObject waterStream = null;
 				if (SpawnTiles.tileExists(next) && SpawnTiles.blocks [SpawnTiles.roundVector (next)].GetComponent<VoidManager> () != null) {
 					waterStream = Instantiate (waterBlock, next, Quaternion.Euler (0, 0, 0));
+					waterStream.transform.localScale = new Vector3 (0, 0, 0);
 					SpawnTiles.blocks [SpawnTiles.roundVector (next)].GetComponent<VoidManager> ().addObject (waterStream);
 				} else {
 					waterStream = Instantiate (waterBlock, next, Quaternion.Euler (0, 0, 0));
