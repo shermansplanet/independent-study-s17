@@ -8,7 +8,7 @@ public class SpellManager : MonoBehaviour {
 
 	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK,CREATE_VOID,CREATE_RAMP};
 	//this is currently initialized this way for testing 
-	private spell[] currentSpell = new spell[]{spell.PUSH,spell.CREATE_VOID};
+	private spell[] currentSpell = new spell[]{spell.CREATE_BLOCK,spell.CREATE_VOID};
 	public Player[] players;
 
 	public GameObject[] selectors;
@@ -97,6 +97,7 @@ public class SpellManager : MonoBehaviour {
 									(SpawnTiles.blocks[SpawnTiles.roundVector (spellPos)].GetComponent<VoidManager>() == null)))) {
 							GameObject voidClone = Instantiate (Voidblock, spellPos, Quaternion.Euler (0, 0, 0));
 							VoidManager v = voidClone.GetComponent<VoidManager>();
+							//add current object to void inventory if needed
 							if (SpawnTiles.tileExists (spellPos)) {
 								GameObject g = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)];
 								g.GetComponent<MeshRenderer> ().enabled = false;
@@ -105,7 +106,8 @@ public class SpellManager : MonoBehaviour {
 							}
 							SpawnTiles.blocks.Add (spellPos, voidClone);
 						} else if (!SpawnTiles.tileExists(spellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_RAMP)) {
-							float rotate = players [i].transform.rotation.y;
+							float rotate = players [i].transform.localEulerAngles.y;
+							rotate = snapRotation (rotate);
 							Debug.Log (rotate);
 							GameObject rampClone = Instantiate (ramp, new Vector3(spellPos.x,spellPos.y - 1,spellPos.z), Quaternion.Euler (-90, rotate, 0));
 							SpawnTiles.blocks.Add (spellPos, rampClone);
@@ -147,5 +149,18 @@ public class SpellManager : MonoBehaviour {
 			break;
 		}
 		return switched ? spell.NO_EFFECT : getSpellCombo(spell2,spell1,true);
+	}
+
+	float snapRotation(float f) {
+		f = Mathf.Max (0, f - 45);
+		if (f < 90) {
+			return 0;
+		} else if (f < 180) {
+			return 90;
+		} else if (f < 270) {
+			return 180;
+		} else {
+			return 270;
+		}
 	}
 }

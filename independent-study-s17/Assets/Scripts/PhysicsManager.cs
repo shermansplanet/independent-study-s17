@@ -62,39 +62,51 @@ public class PhysicsManager : MonoBehaviour {
 				waterblocks.Add (w.GetComponent<WaterManager> ());
 			}
 		}
+		//add water blocks in voids
+		foreach (VoidManager v in voidblocks) {
+			foreach (GameObject g in v.getAllObjects()) {
+				if (g.GetComponent<WaterManager> () != null) {
+					waterblocks.Add(g.GetComponent<WaterManager>());
+				}
+			}
+		}
 
 		foreach (WaterManager wtr in waterblocks) {
 			Vector3 below = new Vector3 (wtr.transform.position.x, wtr.transform.position.y - 2, wtr.transform.position.z);
-			Vector3 next = new Vector3 (0,0,0);
-			next = getNextWater (wtr);;
+			Vector3 next = getNextWater (wtr);
+
 			//flow down
 			if (!SpawnTiles.tileExists (below) && below.y > killPlane) {
-				GameObject waterStream = Instantiate (waterBlock, below, Quaternion.Euler (0,0,0));
-				SpawnTiles.blocks.Add (below, waterStream);
-				waterStream.GetComponent<WaterManager> ().changeParent (wtr);
-				if (waterStream.GetComponent<WaterManager> ().isSource ()) {
-					waterStream.GetComponent<WaterManager> ().changeType ();
-				}
-				waterStream.GetComponent<WaterManager> ().changeDirection (wtr.getDirection ());
+				generateWater (wtr, below, false);
 			}
-			//flow to next tile if free or void (that doesn't already contain water), and there is not water below
-			else if ((!SpawnTiles.tileExists (next) ||
-				SpawnTiles.blocks[SpawnTiles.roundVector(next)].GetComponent<VoidManager>() != null) &&
-				(SpawnTiles.tileExists(below) &&
-					SpawnTiles.blocks[SpawnTiles.roundVector (below)].GetComponent<WaterManager>() == null)) {
-				generateWater (wtr);
-			}
+			//flow to next tile if free and not void, and there is not water below
+			else if (!SpawnTiles.tileExists (next) &&
+			         SpawnTiles.tileExists (below) &&
+			         SpawnTiles.blocks [SpawnTiles.roundVector (below)].GetComponent<WaterManager> () == null) {
+				generateWater (wtr, next, false);
+			} 
+
+			//flow into void block next
+			else if (SpawnTiles.tileExists(next) && SpawnTiles.blocks [next].GetComponent<VoidManager> () != null) {
+				SpawnTiles.blocks [next].GetComponent<VoidManager> ().addObject (generateWater(wtr, next, true));
+			} 
+			//flow into void block below
+			else if (SpawnTiles.tileExists(below) && SpawnTiles.blocks [below].GetComponent<VoidManager> () != null) {
+				SpawnTiles.blocks [below].GetComponent<VoidManager> ().addObject (generateWater(wtr, below, true));
+			} 
 
 			//push pushblock
 			if (SpawnTiles.tileExists (next) &&
-			    SpawnTiles.blocks [SpawnTiles.roundVector (next)].GetComponent<Pushblock> () != null) {
+				SpawnTiles.blocks [SpawnTiles.roundVector (next)].GetComponent<Pushblock> () != null) {
+
 				Pushblock p = SpawnTiles.blocks [SpawnTiles.roundVector (next)].GetComponent<Pushblock> ();
-				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (p.transform.position));
+				Vector3 nextNext = getNextWaterPush (wtr.getDirection (), p);
 
-
-				p.transform.position = getNextWaterPush (wtr.getDirection (), p);
-
-				SpawnTiles.blocks.Add (p.transform.position, GameObject.FindGameObjectWithTag("Pushblock"));
+				if (!SpawnTiles.tileExists (nextNext)) {
+					SpawnTiles.blocks.Remove (SpawnTiles.roundVector (p.transform.position));
+					p.transform.position = nextNext;
+					SpawnTiles.blocks.Add (p.transform.position, p.gameObject);
+				}
 			}
 
 			//stop water if parent is destoryed
@@ -143,26 +155,19 @@ public class PhysicsManager : MonoBehaviour {
 		return next;
 	}
 
-	void generateWater(WaterManager wtr) {
-		//add water to void if there is a void
-		Vector3 next = getNextWater(wtr);
-
-		GameObject waterStream = null;
-
-		if (SpawnTiles.tileExists(next) && SpawnTiles.blocks [SpawnTiles.roundVector (next)].GetComponent<VoidManager> () != null) {
-			waterStream = Instantiate (waterBlock, next, Quaternion.Euler (0, 0, 0));
-			waterStream.transform.localScale = new Vector3 (0, 0, 0);
-			//add to void inventory
-			SpawnTiles.blocks [SpawnTiles.roundVector (next)].GetComponent<VoidManager> ().addObject (waterStream);
+	//instantiates water, adds to SpawnTiles.blocks, makes sure to match parent/type/direciton 
+	GameObject generateWater(WaterManager wtr, Vector3 place, bool inVoid) {
+		GameObject waterStream = Instantiate (waterBlock, place, Quaternion.Euler (0, 0, 0));
+		if (!inVoid) {
+			SpawnTiles.blocks.Add (place, waterStream);
 		} else {
-			waterStream = Instantiate (waterBlock, next, Quaternion.Euler (0, 0, 0));
+			waterStream.gameObject.GetComponent<MeshRenderer>().enabled = false;
 		}
-		SpawnTiles.blocks.Add (next, waterStream);
-		//assert water has correct properties
 		waterStream.GetComponent<WaterManager> ().changeParent (wtr);
 		if (waterStream.GetComponent<WaterManager> ().isSource ()) {
 			waterStream.GetComponent<WaterManager> ().changeType ();
 		}
 		waterStream.GetComponent<WaterManager> ().changeDirection (wtr.getDirection ());
+		return waterStream;
 	}
 }
