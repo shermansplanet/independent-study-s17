@@ -153,11 +153,11 @@ public class SpellManager : MonoBehaviour {
 
 	float snapRotation(float f) {
 		f = Mathf.Max (0, f - 45);
-		if (f < 90) {
+		if (f <= 90) {
 			return 0;
-		} else if (f < 180) {
+		} else if (f <= 180) {
 			return 90;
-		} else if (f < 270) {
+		} else if (f <= 270) {
 			return 180;
 		} else {
 			return 270;
