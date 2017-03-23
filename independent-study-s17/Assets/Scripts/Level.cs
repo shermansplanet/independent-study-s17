@@ -101,7 +101,10 @@ public class Level {
 			GameObject instance = GameObject.Instantiate (b.type.prefab);
 			Vector3 pos = b.pos.ToVector () + position.ToVector ();
 			instance.transform.position = pos;
-			SpawnTiles.blocks.Add (pos, instance);
+			try{
+				SpawnTiles.blocks.Add (pos, instance);
+			}catch{
+			}
 			instance.transform.SetParent (obj.transform);
 		}
 		foreach (Block b in liminalBlocks) {
@@ -192,32 +195,50 @@ public class Level {
 		int3 exitPosition = exit.pos + position + directions[exit.dir];
 		AddLiminalBlock (exitPosition);
 
+		int directionChoice = Random.Range (0, 4);
+		List<int3> liminalBlocksGenerated = new List<int3>();
+		liminalBlocksGenerated.Add (exitPosition);
+
 		for(int i=0; i<nextLevels.Count; i++){
 			Level nextLevel = nextLevels [i];
+
 			LiminalBlock entrance = nextLevel.GenerateLiminalBlock (nextLevel.startBlocks);
+
 			//superimpose entrance on exit
 			int3 entrancePosition = entrance.pos + directions[entrance.dir];
 			nextLevel.position = exitPosition - entrancePosition;
+
 			//while levels intersect, move such that entrance doesn't intersect
-			int timeout = 10000;
+			int timeout = 1000;
+			List<int3> liminalBlocksToAdd = new List<int3> ();
 			while (WorldManager.regionIntersect (nextLevel.position, nextLevel.min, nextLevel.max)) {
 				timeout--;
-				if (timeout == 0)
+				if (timeout == 0) {
+					Debug.Log ("Timeout");
 					return;
+				}
 				List<int3> dirOptions = new List<int3> (directions);
 				foreach (int3 dir in directions) {
-					if (WorldManager.blockIntersect (nextLevel.position + entrancePosition + dir)) {
+					if (WorldManager.blockIntersect (nextLevel.position + entrancePosition + dir,liminalBlocksGenerated)) {
 						dirOptions.Remove (dir);
 					}
 				}
-				dirOptions.Remove (directions [(exit.dir + 2) % 4]);
+
 				dirOptions.Remove (directions [entrance.dir]);
+				dirOptions.Remove (directions [(exit.dir + 2) % 4]);
+
 				if (dirOptions.Count == 0) {
-					Debug.Log ("Something has gone horribly wrong.");
-				} else {
-					nextLevel.position += dirOptions [Random.Range (0, dirOptions.Count)];
+					/*Debug.Log ("Something has gone horribly wrong.");
+					return;*/
+					dirOptions.Add (directions [entrance.dir]);
 				}
-				AddLiminalBlock (entrancePosition + nextLevel.position);
+				nextLevel.position += dirOptions [directionChoice % dirOptions.Count];
+
+				liminalBlocksToAdd.Add (entrancePosition + nextLevel.position);
+				liminalBlocksGenerated.Add (entrancePosition + nextLevel.position);
+			}
+			foreach(int3 pos in liminalBlocksToAdd){
+				AddLiminalBlock (pos);
 			}
 			WorldManager.levelsSpawned.Add (nextLevel);
 		}

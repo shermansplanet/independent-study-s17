@@ -258,6 +258,8 @@ MonoBehaviour:
     prefab: {fileID: 1259261463863458, guid: 7ea8e8b2578e23c42a84b13256de309f, type: 2}
   - name: physics
     prefab: {fileID: 1355366036521634, guid: 1483bc374af77b04c87e035447dca511, type: 2}
+  - name: debug
+    prefab: {fileID: 1490158757803084, guid: da9e46cbe3304404fbc134cb3d844053, type: 2}
 --- !u!4 &553324668
 Transform:
   m_ObjectHideFlags: 0

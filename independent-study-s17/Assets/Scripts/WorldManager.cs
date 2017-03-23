@@ -81,7 +81,7 @@ public class WorldManager : MonoBehaviour {
 		}
 	}
 
-	public static bool blockIntersect(int3 pos, int buffer = 0){
+	public static bool blockIntersect(int3 pos, List<int3> toIgnore = null, int buffer = 2){
 		foreach (Level l in levelsSpawned) {
 			if (
 				(pos.x >= l.min.x + l.position.x - buffer) &&
@@ -93,13 +93,13 @@ public class WorldManager : MonoBehaviour {
 			}
 		}
 		foreach (int3 b in liminalBlocks) {
-			if (b == pos)
+			if (b == pos && toIgnore!=null && !toIgnore.Contains(b))
 				return true;
 		}
 		return false;
 	}
 
-	public static bool regionIntersect(int3 pos, int3 min, int3 max, int buffer = 1){
+	public static bool regionIntersect(int3 pos, int3 min, int3 max, int buffer = 2){
 		foreach (Level l in levelsSpawned) {
 			if (
 				(pos.x + max.x >= l.min.x + l.position.x - buffer) &&
