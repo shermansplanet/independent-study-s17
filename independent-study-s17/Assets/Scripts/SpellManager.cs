@@ -79,7 +79,15 @@ public class SpellManager : MonoBehaviour {
 						}
 					}
 					//CREATE BLOCK/PUSHBLOCK
-					else if (currentSpell [i].Equals (spell.CREATE_BLOCK) && !SpawnTiles.tileExists (spellPos)) {
+					else if (currentSpell [i].Equals (spell.CREATE_BLOCK) && 
+						(!SpawnTiles.tileExists (spellPos)) || SpawnTiles.blocks[spellPos].GetComponent<WaterManager>() != null) {
+						//destory current water block
+						if (SpawnTiles.tileExists (spellPos)) {
+							WaterManager currentWater = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)].GetComponent<WaterManager> ();
+							Destroy (currentWater.gameObject);
+							SpawnTiles.blocks.Remove (SpawnTiles.roundVector (spellPos));
+						}
+						//now create block
 						if (otherPlayer == -1) {
 							GameObject tileClone = Instantiate (tile, spellPos, Quaternion.Euler (0, 0, 0));
 							SpawnTiles.blocks.Add (spellPos, tileClone);
