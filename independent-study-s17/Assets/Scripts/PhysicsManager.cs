@@ -12,18 +12,33 @@ public class PhysicsManager : MonoBehaviour {
 
 	public GameObject waterBlock;
 
+	public List<Player> players;
+
 	void Update () {
 		if (Time.time >= nextTime) {
 			simulatePhysics ();
 			nextTime += tick;
 		}
+
+		//Move player if in water: NOTE: THIS TECHNOLOGY ISN'T READY
+		/*
+		foreach (Player p in players) {
+			Vector3 currentTile = new Vector3 (
+				Mathf.Round (p.transform.position.x/2),
+				Mathf.Round (p.transform.position.y/2),
+				Mathf.Round (p.transform.position.z/2))*2;
+			if (SpawnTiles.tileExists (SpawnTiles.roundVector (currentTile)) &&
+				SpawnTiles.blocks [SpawnTiles.roundVector (currentTile)].GetComponent<WaterManager> () != null) {
+				Debug.Log ("In water");
+				Vector3 newPosition = p.transform.position + Move.WaterMove(SpawnTiles.blocks [SpawnTiles.roundVector (currentTile)].GetComponent<WaterManager> ());
+				p.transform.position = newPosition;
+			}
+		}
+		*/
 	}
 
 	void simulatePhysics(){
 
-		//putting this crappy annoying ridiculous code here becuase it destroys sanity
-		//just take a look at the water logic, I mean just look at it
-		//and yes I wrote this code at 4:30 am don't judge me
 		List<VoidManager> voidblocks = new List<VoidManager>();
 
 		foreach (GameObject v in GameObject.FindGameObjectsWithTag("Void")) {
@@ -116,6 +131,8 @@ public class PhysicsManager : MonoBehaviour {
 			}
 		}
 	}
+		
+	//HELPER FUNCTIONS
 
 	Vector3 getNextWater(WaterManager wtr) {
 		Vector3 next = new Vector3(0,0,0);

@@ -19,6 +19,8 @@ public class Move : MonoBehaviour {
 
 			Vector3 positionOffset = UP * translation.x + RIGHT * translation.y;
 
+			Vector3 waterOffset = new Vector3 (0, 0, 0);
+
 			Vector3 currentTile = new Vector3 (
 				Mathf.Round (p.transform.position.x/2),
 				Mathf.Round (p.transform.position.y/2),
@@ -70,7 +72,16 @@ public class Move : MonoBehaviour {
 				}
 			}
 
-			Vector3 newPosition = p.transform.position + positionOffset;
+
+			//acount for water
+			if (SpawnTiles.tileExists (currentTile) &&
+			    SpawnTiles.blocks [SpawnTiles.roundVector (currentTile)].GetComponent<WaterManager> () != null) {
+
+				WaterManager w = SpawnTiles.blocks [SpawnTiles.roundVector (currentTile)].GetComponent<WaterManager> ();
+				//waterOffset = waterDirection (w);
+			}
+
+			Vector3 newPosition = p.transform.position + positionOffset + waterOffset;
 
 			p.transform.position = newPosition;
 		}
@@ -80,4 +91,25 @@ public class Move : MonoBehaviour {
 		float deadZone = 0.1f;
 		return Mathf.Clamp01(input.magnitude - deadZone) / (1 - deadZone);
 	}
+
+	public static Vector3 WaterMove(WaterManager wtr) {
+		Vector3 next = new Vector3(0,0,0);
+		switch (wtr.getDirection()) {
+		case 0:
+			next = RIGHT * Time.deltaTime * speed;
+			break;
+		case 90:
+			next = UP * Time.deltaTime * speed;
+			break;
+		case 180:
+			next = RIGHT * -1 * Time.deltaTime * speed;
+			break;
+		case 270:
+			next = UP * -1 * Time.deltaTime * speed;
+			break;
+		}
+		return next;
+	}
+
+
 }
