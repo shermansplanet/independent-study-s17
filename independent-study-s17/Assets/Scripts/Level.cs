@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 
 public class Level {
 
+	const int LEVEL_BORDER = 2;
+
 	public class Block{
 		public int3 pos { get; set; }
 		public BlockType type { get; set; }
@@ -25,6 +27,11 @@ public class Level {
 		new int3(0,0,2),
 		new int3(-2,0,0),
 		new int3(0,0,-2),
+	};
+
+	public struct connectorOption{
+		public List<int3> blocks;
+		public int3 newPos;
 	};
 
 	public List<Block> blocks;
@@ -98,21 +105,23 @@ public class Level {
 
 	public void Spawn(){
 		foreach (Block b in blocks) {
-			GameObject instance = GameObject.Instantiate (b.type.prefab);
 			Vector3 pos = b.pos.ToVector () + position.ToVector ();
-			instance.transform.position = pos;
-			try{
+			if (!SpawnTiles.blocks.ContainsKey (pos)) {
+				GameObject instance = GameObject.Instantiate (b.type.prefab);
+				instance.transform.position = pos;
 				SpawnTiles.blocks.Add (pos, instance);
-			}catch{
+				instance.transform.SetParent (obj.transform);
 			}
-			instance.transform.SetParent (obj.transform);
 		}
 		foreach (Block b in liminalBlocks) {
-			GameObject instance = GameObject.Instantiate (b.type.prefab);
 			Vector3 pos = b.pos.ToVector ();
-			instance.transform.position = pos;
-			SpawnTiles.blocks.Add (pos, instance);
-			instance.transform.SetParent (obj.transform);
+			if (!SpawnTiles.blocks.ContainsKey (pos)) {
+				GameObject instance = GameObject.Instantiate (b.type.prefab);
+				instance.transform.position = pos;
+				SpawnTiles.blocks.Add (pos, instance);
+				instance.transform.SetParent (obj.transform);
+				instance.transform.localScale = Vector3.one * 1.5f;
+			}
 		}
 	}
 
@@ -152,23 +161,40 @@ public class Level {
 		position = -startPos;
 	}
 
+	public List<int3> whitelist;
+
 	private void GenerateLiminality(int3 pos, List<LiminalBlock> blockList){
+		int3 blockMin = new int3(pos);
+		int3 blockMax = new int3(pos);
 		if (pos.x == max.x) {
 			blockList.Add (new LiminalBlock{ pos = pos, dir = 0 });
+			blockMax.x += LEVEL_BORDER * 2;
 		}
 		if (pos.z == max.z) {
 			blockList.Add (new LiminalBlock{ pos = pos, dir = 1 });
+			blockMax.z += LEVEL_BORDER * 2;
 		}
 		if (pos.x == min.x) {
 			blockList.Add (new LiminalBlock{ pos = pos, dir = 2 });
+			blockMin.x -= LEVEL_BORDER * 2;
 		}
 		if (pos.z == min.z) {
 			blockList.Add (new LiminalBlock{ pos = pos, dir = 3 });
+			blockMin.z -= LEVEL_BORDER * 2;
+		}
+		for (int x = blockMin.x; x <= blockMax.x; x+=2) {
+			for (int z = blockMin.z; z <= blockMax.z; z+=2) {
+				int3 newPos = new int3 (x, pos.y, z);
+				if (newPos != pos) {
+					whitelist.Add (newPos);
+				}
+			}
 		}
 	}
 
 	public LiminalBlock GenerateLiminalBlock(List<int3> blockList){
 		List<LiminalBlock> liminality = new List<LiminalBlock>();
+		whitelist = new List<int3> ();
 		foreach (int3 pos in blockList) {
 			GenerateLiminality (pos, liminality);
 		}
@@ -191,57 +217,147 @@ public class Level {
 			return;
 		}
 		//TODO: optimize for no two levels on same side
-		LiminalBlock exit = GenerateLiminalBlock(endBlocks);
-		int3 exitPosition = exit.pos + position + directions[exit.dir];
-		AddLiminalBlock (exitPosition);
 
-		int directionChoice = Random.Range (0, 4);
 		List<int3> liminalBlocksGenerated = new List<int3>();
-		liminalBlocksGenerated.Add (exitPosition);
 
 		for(int i=0; i<nextLevels.Count; i++){
 			Level nextLevel = nextLevels [i];
 
-			LiminalBlock entrance = nextLevel.GenerateLiminalBlock (nextLevel.startBlocks);
+			bool success = false;
+			for (int n = 0; n < 10; n++) {
+				LiminalBlock exit = GenerateLiminalBlock(endBlocks);
+				int3 exitPosition = exit.pos + position;
 
-			//superimpose entrance on exit
-			int3 entrancePosition = entrance.pos + directions[entrance.dir];
-			nextLevel.position = exitPosition - entrancePosition;
-
-			//while levels intersect, move such that entrance doesn't intersect
-			int timeout = 1000;
-			List<int3> liminalBlocksToAdd = new List<int3> ();
-			while (WorldManager.regionIntersect (nextLevel.position, nextLevel.min, nextLevel.max)) {
-				timeout--;
-				if (timeout == 0) {
-					Debug.Log ("Timeout");
-					return;
+				if (GenerateConnector (nextLevel, exitPosition, exit, liminalBlocksGenerated)) {
+					success = true;
+					break;
 				}
-				List<int3> dirOptions = new List<int3> (directions);
-				foreach (int3 dir in directions) {
-					if (WorldManager.blockIntersect (nextLevel.position + entrancePosition + dir,liminalBlocksGenerated)) {
-						dirOptions.Remove (dir);
+			}
+
+			if (!success) {
+				Debug.Log ("Failed to connect level");
+			}
+		}
+
+		List<int3> liminalWhitelist = new List<int3> (liminalBlocksGenerated);
+
+		foreach (int3 b in whitelist) {
+			liminalWhitelist.Add (b + position);
+			//GameObject.Instantiate (WorldManager.blockTypes [2].prefab, (b + position).ToVector(), Quaternion.identity);
+		}
+
+		foreach (Level l in nextLevels) {
+			foreach (int3 b in l.whitelist) {
+				liminalWhitelist.Add (b + l.position);
+				//GameObject.Instantiate (WorldManager.blockTypes [2].prefab, (b + l.position).ToVector(), Quaternion.identity);
+			}
+		}
+
+		int extraBlockCount = 100;//liminalBlocksGenerated.Count * 2;
+
+		for (int n = 0; n < extraBlockCount; n++) {
+			int3 pos = liminalBlocksGenerated [Random.Range (0, liminalBlocksGenerated.Count)];
+			pos += directions [Random.Range(0, 4)];
+			if (!WorldManager.blockIntersect (pos, liminalWhitelist, LEVEL_BORDER * 2, this) && !liminalBlocksGenerated.Contains(pos)) {
+				AddLiminalBlock (pos);
+				liminalBlocksGenerated.Add (pos);
+				liminalWhitelist.Add (pos);
+			}
+		}
+
+		for (int n = 0; n < LEVEL_BORDER; n++) {
+			int len = liminalBlocksGenerated.Count;
+			for(int i=0; i<len; i++){
+				int3 b = liminalBlocksGenerated [i];
+				foreach (int3 d in directions) {
+					if (!WorldManager.liminalBlocks.Contains(b+d)) {
+						WorldManager.liminalBlocks.Add (b + d);
+						liminalBlocksGenerated.Add (b + d);
 					}
 				}
-
-				dirOptions.Remove (directions [entrance.dir]);
-				dirOptions.Remove (directions [(exit.dir + 2) % 4]);
-
-				if (dirOptions.Count == 0) {
-					/*Debug.Log ("Something has gone horribly wrong.");
-					return;*/
-					dirOptions.Add (directions [entrance.dir]);
-				}
-				nextLevel.position += dirOptions [directionChoice % dirOptions.Count];
-
-				liminalBlocksToAdd.Add (entrancePosition + nextLevel.position);
-				liminalBlocksGenerated.Add (entrancePosition + nextLevel.position);
 			}
-			foreach(int3 pos in liminalBlocksToAdd){
-				AddLiminalBlock (pos);
-			}
-			WorldManager.levelsSpawned.Add (nextLevel);
 		}
+	}
+
+	private bool GenerateConnector(Level nextLevel, int3 exitPosition, LiminalBlock exit, List<int3> liminalBlocksGenerated){
+
+		for (int j = 0; j < LEVEL_BORDER+1; j++) {
+			exitPosition += directions [exit.dir];
+			if (WorldManager.blockIntersect (exitPosition, liminalBlocksGenerated, LEVEL_BORDER * 2, this)) {
+				Debug.Log ("Exit untenable");
+				return false;
+			} else {
+				AddLiminalBlock (exitPosition);
+				liminalBlocksGenerated.Add (exitPosition);
+			}
+		}
+
+		LiminalBlock entrance = nextLevel.GenerateLiminalBlock (nextLevel.startBlocks);
+		List<int3> possibleBlocksGenerated = new List<int3> (liminalBlocksGenerated);
+		List<int3> liminalBlocksToAdd = new List<int3> ();
+		int3[] entranceBlocks = new int3[LEVEL_BORDER];
+
+		//superimpose entrance on exit
+		int3 entrancePosition = entrance.pos;
+		for (int n = 0; n < LEVEL_BORDER+1; n++) {
+			if (n > 0) {
+				entranceBlocks [n - 1] = entrancePosition;
+			}
+			entrancePosition += directions[entrance.dir];
+		}
+		nextLevel.position = exitPosition - entrancePosition;
+
+		//while levels intersect, move such that entrance doesn't intersect
+		int timeout = 1000;
+
+		List<int3> tempDirections = new List<int3> (directions);
+		List<int3> directionPriority = new List<int3> ();
+		for(int j=4; j>0; j--){
+			int index = Random.Range (0, j);
+			directionPriority.Add (tempDirections[index]);
+			tempDirections.RemoveAt (index);
+		}
+			
+
+		while (WorldManager.regionIntersect (nextLevel.position, nextLevel.min, nextLevel.max,LEVEL_BORDER * 2)) {
+			timeout--;
+			if (timeout == 0) {
+				Debug.Log ("Timeout");
+				return false;
+			}
+			List<int3> dirOptions = new List<int3> (directionPriority);
+			foreach (int3 dir in directions) {
+				if (WorldManager.blockIntersect (nextLevel.position + entrancePosition + dir, possibleBlocksGenerated, LEVEL_BORDER * 2) ||
+					liminalBlocksToAdd.Contains(nextLevel.position + entrancePosition + dir)
+				) {
+					dirOptions.Remove (dir);
+				}
+			}
+
+			dirOptions.Remove (directions [entrance.dir]);
+			dirOptions.Remove (directions [(exit.dir + 2) % 4]);
+
+			if (dirOptions.Count == 0) {
+				Debug.Log ("We're trapped!");
+				return false;
+			}
+			nextLevel.position += dirOptions [0];
+
+			liminalBlocksToAdd.Add (entrancePosition + nextLevel.position);
+			possibleBlocksGenerated.Add (entrancePosition + nextLevel.position);
+		}
+
+		WorldManager.levelsSpawned.Add (nextLevel);
+
+		foreach (int3 pos in entranceBlocks) {
+			liminalBlocksToAdd.Add (pos + nextLevel.position);
+		}
+
+		foreach(int3 pos in liminalBlocksToAdd){
+			AddLiminalBlock (pos);
+			liminalBlocksGenerated.Add (pos);
+		}
+		return true;
 	}
 
 }

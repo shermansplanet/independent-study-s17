@@ -14,9 +14,11 @@ public class WorldManager : MonoBehaviour {
 
 	public static List<int3> liminalBlocks;
 	public static List<Level> levelsSpawned;
+	public static Queue<Level> levelsToSpawn;
 
 	// Use this for initialization
 	void Awake () {
+		Random.InitState (0);
 		levelsSpawned = new List<Level> ();
 		liminalBlocks = new List<int3> ();
 		SpawnTiles.blocks = new Dictionary<Vector3, GameObject> ();
@@ -75,14 +77,31 @@ public class WorldManager : MonoBehaviour {
 		firstLevel.Zero ();
 		levelsSpawned.Add (firstLevel);
 
-		foreach (Level l in levelsAdded) {
+		levelsToSpawn = new Queue<Level> ();
+		levelsToSpawn.Enqueue (firstLevel);
+		StartCoroutine("Generate");
+	}
+
+	IEnumerator Generate(){
+		while (levelsToSpawn.Count > 0) {
+			Level l = levelsToSpawn.Dequeue ();
+			foreach (Level child in l.nextLevels) {
+				levelsToSpawn.Enqueue (child);
+			}
 			l.GenerateConnectors ();
 			l.Spawn ();
+			yield return null;
 		}
 	}
 
-	public static bool blockIntersect(int3 pos, List<int3> toIgnore = null, int buffer = 2){
+	public static bool blockIntersect(int3 pos, List<int3> toIgnore = null, int buffer = 4, Level ignoreLevel = null){
+		if (toIgnore != null && ignoreLevel==null && toIgnore.Contains (pos)) {
+			return false;
+		}
 		foreach (Level l in levelsSpawned) {
+			if (ignoreLevel == l) {
+				continue;
+			}
 			if (
 				(pos.x >= l.min.x + l.position.x - buffer) &&
 				(pos.x <= l.max.x + l.position.x + buffer) &&
@@ -92,14 +111,13 @@ public class WorldManager : MonoBehaviour {
 				return true;
 			}
 		}
-		foreach (int3 b in liminalBlocks) {
-			if (b == pos && toIgnore!=null && !toIgnore.Contains(b))
-				return true;
+		if (toIgnore != null && toIgnore.Contains (pos)) {
+			return false;
 		}
-		return false;
+		return liminalBlocks.Contains (pos);
 	}
 
-	public static bool regionIntersect(int3 pos, int3 min, int3 max, int buffer = 2){
+	public static bool regionIntersect(int3 pos, int3 min, int3 max, int buffer = 4){
 		foreach (Level l in levelsSpawned) {
 			if (
 				(pos.x + max.x >= l.min.x + l.position.x - buffer) &&

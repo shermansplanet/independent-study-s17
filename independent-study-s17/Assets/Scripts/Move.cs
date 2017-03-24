@@ -8,7 +8,7 @@ public class Move : MonoBehaviour {
 	static readonly Vector3 RIGHT = new Vector3(1,0,-1).normalized;
 	const float RADIUS = 0.5f;
 	private static float DIAG_RADIUS = 1-(1-RADIUS)/Mathf.Sqrt(2);
-	static public float speed = 2;
+	static public float speed = 4;
 
 	public static void ObjectMove(string axisV, string axisH, Player p){
 
