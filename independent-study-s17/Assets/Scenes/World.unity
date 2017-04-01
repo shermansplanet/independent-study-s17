@@ -260,6 +260,8 @@ MonoBehaviour:
     prefab: {fileID: 1355366036521634, guid: 1483bc374af77b04c87e035447dca511, type: 2}
   - name: debug
     prefab: {fileID: 1490158757803084, guid: da9e46cbe3304404fbc134cb3d844053, type: 2}
+  - name: ramp
+    prefab: {fileID: 1217338711563642, guid: ed523eede567c4f3fa8c42dd67c2b4cc, type: 2}
 --- !u!4 &553324668
 Transform:
   m_ObjectHideFlags: 0
@@ -572,7 +574,7 @@ Prefab:
         type: 2}
       propertyPath: Voidblock
       value: 
-      objectReference: {fileID: 1505499640552914, guid: ac9ec4babc7aef148b9af1a8598dc540,
+      objectReference: {fileID: 1702586351634746, guid: 490234e67e4df4a64b1eb4030de9b2e2,
         type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 91964fa5fd334fb48b3e54c5f7e9467d, type: 2}

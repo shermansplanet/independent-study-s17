@@ -9,6 +9,7 @@ public class Level {
 
 	public class Block{
 		public int3 pos { get; set; }
+		public byte dir { get; set; }
 		public BlockType type { get; set; }
 	}
 
@@ -96,9 +97,24 @@ public class Level {
 				} else if (item [3] == "goal") {
 					endBlocks.Add (pos);
 				}
-				blocks.Add (new Block { pos = pos, type = type });
+				byte dir = item.Length < 5 ? (byte)0 : byte.Parse (item [4]);
+				blocks.Add (new Block { pos = pos, type = type, dir = dir });
 				min = int3.minBound (pos, min);
 				max = int3.maxBound (pos, max);
+			}
+		}
+	}
+
+	private void SpawnNewBlock(Block b, Vector3 pos){
+		if (!SpawnTiles.blocks.ContainsKey (pos)) {
+			GameObject instance = GameObject.Instantiate (b.type.prefab);
+			instance.transform.position = pos;
+			SpawnTiles.blocks.Add (pos, instance);
+			instance.transform.SetParent (obj.transform);
+			instance.transform.rotation = Quaternion.LookRotation (directions [b.dir].ToVector());
+			if (b.type.name == "ramp") {
+				instance.GetComponent<RampBehaviour> ().dir = b.dir;
+				instance.GetComponent<RampBehaviour> ().upSlopeDirection = directions [b.dir].ToVector();
 			}
 		}
 	}
@@ -106,22 +122,11 @@ public class Level {
 	public void Spawn(){
 		foreach (Block b in blocks) {
 			Vector3 pos = b.pos.ToVector () + position.ToVector ();
-			if (!SpawnTiles.blocks.ContainsKey (pos)) {
-				GameObject instance = GameObject.Instantiate (b.type.prefab);
-				instance.transform.position = pos;
-				SpawnTiles.blocks.Add (pos, instance);
-				instance.transform.SetParent (obj.transform);
-			}
+			SpawnNewBlock (b, pos);
 		}
 		foreach (Block b in liminalBlocks) {
 			Vector3 pos = b.pos.ToVector ();
-			if (!SpawnTiles.blocks.ContainsKey (pos)) {
-				GameObject instance = GameObject.Instantiate (b.type.prefab);
-				instance.transform.position = pos;
-				SpawnTiles.blocks.Add (pos, instance);
-				instance.transform.SetParent (obj.transform);
-				instance.transform.localScale = Vector3.one * 1.5f;
-			}
+			SpawnNewBlock (b, pos);
 		}
 	}
 
@@ -185,9 +190,7 @@ public class Level {
 		for (int x = blockMin.x; x <= blockMax.x; x+=2) {
 			for (int z = blockMin.z; z <= blockMax.z; z+=2) {
 				int3 newPos = new int3 (x, pos.y, z);
-				if (newPos != pos) {
-					whitelist.Add (newPos);
-				}
+				whitelist.Add (newPos);
 			}
 		}
 	}
@@ -195,9 +198,15 @@ public class Level {
 	public LiminalBlock GenerateLiminalBlock(List<int3> blockList){
 		List<LiminalBlock> liminality = new List<LiminalBlock>();
 		whitelist = new List<int3> ();
+
 		foreach (int3 pos in blockList) {
 			GenerateLiminality (pos, liminality);
 		}
+
+		foreach (int3 pos in blockList) {
+			whitelist.Remove (pos);
+		}
+
 		return liminality [Random.Range (0, liminality.Count)];
 	}
 
@@ -216,15 +225,17 @@ public class Level {
 		if (nextLevels.Count == 0) {
 			return;
 		}
-		//TODO: optimize for no two levels on same side
 
 		List<int3> liminalBlocksGenerated = new List<int3>();
+
+		List<Level> toRemove = new List<Level> ();
 
 		for(int i=0; i<nextLevels.Count; i++){
 			Level nextLevel = nextLevels [i];
 
 			bool success = false;
-			for (int n = 0; n < 10; n++) {
+			for (int n = 0; n < 6; n++) {
+				
 				LiminalBlock exit = GenerateLiminalBlock(endBlocks);
 				int3 exitPosition = exit.pos + position;
 
@@ -235,8 +246,17 @@ public class Level {
 			}
 
 			if (!success) {
-				Debug.Log ("Failed to connect level");
+				Debug.Log ("Failed to connect level " + name + " >>> " + nextLevel.name);
+				toRemove.Add (nextLevel);
 			}
+		}
+
+		foreach (Level l in toRemove) {
+			nextLevels.Remove (l);
+		}
+
+		if (nextLevels.Count == 0) {
+			return;
 		}
 
 		List<int3> liminalWhitelist = new List<int3> (liminalBlocksGenerated);
@@ -255,10 +275,13 @@ public class Level {
 
 		int extraBlockCount = 100;//liminalBlocksGenerated.Count * 2;
 
+		List<Level> allLevels = new List<Level> (nextLevels);
+		allLevels.Add (this);
+
 		for (int n = 0; n < extraBlockCount; n++) {
 			int3 pos = liminalBlocksGenerated [Random.Range (0, liminalBlocksGenerated.Count)];
 			pos += directions [Random.Range(0, 4)];
-			if (!WorldManager.blockIntersect (pos, liminalWhitelist, LEVEL_BORDER * 2, this) && !liminalBlocksGenerated.Contains(pos)) {
+			if (!WorldManager.blockIntersect (pos, liminalWhitelist, LEVEL_BORDER * 2, allLevels) && !liminalBlocksGenerated.Contains(pos)) {
 				AddLiminalBlock (pos);
 				liminalBlocksGenerated.Add (pos);
 				liminalWhitelist.Add (pos);
@@ -281,23 +304,23 @@ public class Level {
 
 	private bool GenerateConnector(Level nextLevel, int3 exitPosition, LiminalBlock exit, List<int3> liminalBlocksGenerated){
 
-		for (int j = 0; j < LEVEL_BORDER+1; j++) {
+		List<int3> blocksToIgnore = new List<int3> (liminalBlocksGenerated);
+
+		foreach (int3 pos in whitelist) {
+			blocksToIgnore.Add (pos + position);
+		}
+
+		List<int3> liminalBlocksToAdd = new List<int3> ();
+
+		for (int i = 0; i < nextLevels.Count; i++) {
 			exitPosition += directions [exit.dir];
-			if (WorldManager.blockIntersect (exitPosition, liminalBlocksGenerated, LEVEL_BORDER * 2, this)) {
-				Debug.Log ("Exit untenable");
-				return false;
-			} else {
-				AddLiminalBlock (exitPosition);
-				liminalBlocksGenerated.Add (exitPosition);
-			}
+			liminalBlocksToAdd.Add (exitPosition);
 		}
 
 		LiminalBlock entrance = nextLevel.GenerateLiminalBlock (nextLevel.startBlocks);
-		List<int3> possibleBlocksGenerated = new List<int3> (liminalBlocksGenerated);
-		List<int3> liminalBlocksToAdd = new List<int3> ();
+
 		int3[] entranceBlocks = new int3[LEVEL_BORDER];
 
-		//superimpose entrance on exit
 		int3 entrancePosition = entrance.pos;
 		for (int n = 0; n < LEVEL_BORDER+1; n++) {
 			if (n > 0) {
@@ -305,10 +328,6 @@ public class Level {
 			}
 			entrancePosition += directions[entrance.dir];
 		}
-		nextLevel.position = exitPosition - entrancePosition;
-
-		//while levels intersect, move such that entrance doesn't intersect
-		int timeout = 1000;
 
 		List<int3> tempDirections = new List<int3> (directions);
 		List<int3> directionPriority = new List<int3> ();
@@ -317,35 +336,47 @@ public class Level {
 			directionPriority.Add (tempDirections[index]);
 			tempDirections.RemoveAt (index);
 		}
-			
 
-		while (WorldManager.regionIntersect (nextLevel.position, nextLevel.min, nextLevel.max,LEVEL_BORDER * 2)) {
-			timeout--;
-			if (timeout == 0) {
-				Debug.Log ("Timeout");
-				return false;
+		Dictionary<int3,int3> parents = new Dictionary<int3, int3> ();
+		List<int3> squaresChecked = new List<int3> ();
+		Queue<int3> squaresToCheck = new Queue<int3> ();
+		squaresToCheck.Enqueue (exitPosition);
+		parents.Add (exitPosition, exitPosition);
+
+		int3 successBlock = null;
+		while (squaresToCheck.Count > 0) {
+			int3 currentSquare = squaresToCheck.Dequeue ();
+			squaresChecked.Add (currentSquare);
+
+			List<int3> extraBlocks = Chain (new List<int3> (), parents, currentSquare);
+
+			if (!WorldManager.regionIntersect (currentSquare - entrancePosition, nextLevel.min, nextLevel.max, LEVEL_BORDER * 2,extraBlocks)) {
+				successBlock = currentSquare;
+				break;
 			}
-			List<int3> dirOptions = new List<int3> (directionPriority);
-			foreach (int3 dir in directions) {
-				if (WorldManager.blockIntersect (nextLevel.position + entrancePosition + dir, possibleBlocksGenerated, LEVEL_BORDER * 2) ||
-					liminalBlocksToAdd.Contains(nextLevel.position + entrancePosition + dir)
-				) {
-					dirOptions.Remove (dir);
+			foreach (int3 d in directionPriority) {
+				int3 newSquare = currentSquare + d;
+				if (!squaresChecked.Contains (newSquare) &&
+					!squaresToCheck.Contains(newSquare) &&
+					!WorldManager.blockIntersect (newSquare, blocksToIgnore, LEVEL_BORDER * 2))
+				{
+					squaresToCheck.Enqueue (newSquare);
+					parents.Add (newSquare, currentSquare);
 				}
 			}
-
-			dirOptions.Remove (directions [entrance.dir]);
-			dirOptions.Remove (directions [(exit.dir + 2) % 4]);
-
-			if (dirOptions.Count == 0) {
-				Debug.Log ("We're trapped!");
-				return false;
-			}
-			nextLevel.position += dirOptions [0];
-
-			liminalBlocksToAdd.Add (entrancePosition + nextLevel.position);
-			possibleBlocksGenerated.Add (entrancePosition + nextLevel.position);
 		}
+
+		if (successBlock == null) {
+			/*foreach (int3 pos in squaresChecked) {
+				GameObject.Instantiate (WorldManager.blockTypes [2].prefab, pos.ToVector (), Quaternion.identity);
+			}*/
+			Debug.Log ("BFS failure");
+			return false;
+		}
+
+		nextLevel.position = successBlock - entrancePosition;
+
+		Chain (liminalBlocksToAdd, parents, successBlock);
 
 		WorldManager.levelsSpawned.Add (nextLevel);
 
@@ -360,4 +391,13 @@ public class Level {
 		return true;
 	}
 
+	public List<int3> Chain(List<int3> list, Dictionary<int3,int3> parents, int3 start){
+		int3 next = parents [start];
+		if (start == next) {
+			return list;
+		} else {
+			list.Add (start);
+			return Chain (list, parents, next);
+		}
+	}
 }

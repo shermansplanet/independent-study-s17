@@ -6,8 +6,8 @@
 -2,0,-2,static
 2,0,-2,goal
 2,0,0,goal
-2,0,2,static
-2,0,-4,static
+2,0,2,goal
+2,0,-4,goal
 0,0,-4,static
 -2,0,-4,static
 -4,0,-4,static

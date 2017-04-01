@@ -7,7 +7,7 @@ public class Move : MonoBehaviour {
 	static readonly Vector3 UP = new Vector3(1,0,1).normalized;
 	static readonly Vector3 RIGHT = new Vector3(1,0,-1).normalized;
 	const float RADIUS = 0.5f;
-	private static float DIAG_RADIUS = 1-(1-RADIUS)/Mathf.Sqrt(2);
+	//private static float DIAG_RADIUS = 1-(1-RADIUS)/Mathf.Sqrt(2);
 	static public float speed = 4;
 
 	public static void ObjectMove(string axisV, string axisH, Player p){
@@ -26,6 +26,17 @@ public class Move : MonoBehaviour {
 				Mathf.Round (p.transform.position.y/2),
 				Mathf.Round (p.transform.position.z/2))*2;
 
+			RampBehaviour ramp = SpawnTiles.tileExists(currentTile) ? SpawnTiles.blocks [currentTile].GetComponent<RampBehaviour>() : null;
+
+			Vector3 tileBelow = currentTile + Vector3.down * 2;
+
+			if (ramp == null && SpawnTiles.tileExists(tileBelow)) {
+				ramp = SpawnTiles.blocks [tileBelow].GetComponent<RampBehaviour> ();
+				if (ramp != null) {
+					currentTile = tileBelow;
+				}
+			}
+
 			p.pos = currentTile;
 
 			p.transform.rotation = Quaternion.LookRotation (positionOffset);
@@ -43,29 +54,22 @@ public class Move : MonoBehaviour {
 			bool exceedingBoundaryZ = (positionOffset.z > 0 && positionWithinTile.z > RADIUS) || (positionOffset.z < 0 && positionWithinTile.z < -RADIUS);
 			bool onEdge = false;
 
-			if (!SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, -2, 0)) ||
-				(SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, 0, 0)) &&
-				SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (normalizedX, 0, 0))].GetComponent<VoidManager>() == null &&
-				SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (normalizedX, 0, 0))].GetComponent<WaterManager>() == null)) {
+			Vector3 rampDirection = ramp == null ? Vector3.zero : ramp.upSlopeDirection;
+
+			if (movementBlocked(currentTile,new Vector3 (normalizedX, 0, 0),rampDirection)) {
 				if (exceedingBoundaryX) {
 					positionOffset.x = 0;
 					onEdge = true;
 				}
 			}
-			if (!SpawnTiles.tileExists (currentTile + new Vector3 (0, -2, normalizedZ)) ||
-				(SpawnTiles.tileExists (currentTile + new Vector3 (0, 0, normalizedZ)) &&
-					SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (0, 0, normalizedZ))].GetComponent<VoidManager>() == null &&
-					SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (0, 0, normalizedZ))].GetComponent<WaterManager>() == null)) {
+			if (movementBlocked(currentTile,new Vector3 (0, 0, normalizedZ),rampDirection)) {
 				if (exceedingBoundaryZ) {
 					positionOffset.z = 0;
 					onEdge = true;
 				}
 			}
 
-			if (!SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, -2, normalizedZ)) ||
-				(SpawnTiles.tileExists (currentTile + new Vector3 (normalizedX, 0, normalizedZ)) &&
-					SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (normalizedX, 0, normalizedZ))].GetComponent<VoidManager>() == null &&
-					SpawnTiles.blocks[SpawnTiles.roundVector(currentTile + new Vector3 (normalizedX, 0, normalizedZ))].GetComponent<WaterManager>() == null)) {
+			if (movementBlocked(currentTile,new Vector3 (normalizedX, 0, normalizedZ),rampDirection)) {
 				if (exceedingBoundaryX && exceedingBoundaryZ && !onEdge) {
 					positionOffset.x = 0;
 					positionOffset.z = 0;
@@ -77,14 +81,42 @@ public class Move : MonoBehaviour {
 			if (SpawnTiles.tileExists (currentTile) &&
 			    SpawnTiles.blocks [SpawnTiles.roundVector (currentTile)].GetComponent<WaterManager> () != null) {
 
-				WaterManager w = SpawnTiles.blocks [SpawnTiles.roundVector (currentTile)].GetComponent<WaterManager> ();
+				//WaterManager w = SpawnTiles.blocks [SpawnTiles.roundVector (currentTile)].GetComponent<WaterManager> ();
 				//waterOffset = waterDirection (w);
 			}
 
+			float rampOffset = ramp == null ? 0 : mul((positionWithinTile + ramp.upSlopeDirection * 0.5f), ramp.upSlopeDirection).magnitude * 0.5f;
+
 			Vector3 newPosition = p.transform.position + positionOffset + waterOffset;
+
+			newPosition.y = currentTile.y + rampOffset;
 
 			p.transform.position = newPosition;
 		}
+	}
+
+	private static Vector3 mul(Vector3 a, Vector3 b){
+		return new Vector3 (
+			a.x * b.x,
+			a.y * b.y,
+			a.z * b.z
+		);
+	}
+
+	private static bool movementBlocked(Vector3 currentTile, Vector3 offset, Vector3 currentRampDirection){
+		if (currentRampDirection == offset) {
+			currentTile += Vector3.up * 2;
+		}
+		GameObject block = SpawnTiles.tileExists (currentTile + offset) ? SpawnTiles.blocks [SpawnTiles.roundVector (currentTile + offset)] : null;
+		RampBehaviour ramp = block == null ? null : block.GetComponent<RampBehaviour> ();
+		return
+			!SpawnTiles.tileExists (currentTile + offset + new Vector3 (0, -2, 0))
+			||(
+				block !=null &&
+				block.GetComponent<VoidManager> () == null &&
+				block.GetComponent<WaterManager> () == null &&
+				(ramp == null || (ramp.upSlopeDirection != offset && currentRampDirection != ramp.upSlopeDirection))
+			);
 	}
 
 	static float GetMagnitude(Vector2 input){

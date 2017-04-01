@@ -18,7 +18,7 @@ public class WorldManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-		Random.InitState (0);
+		//Random.InitState (0);
 		levelsSpawned = new List<Level> ();
 		liminalBlocks = new List<int3> ();
 		SpawnTiles.blocks = new Dictionary<Vector3, GameObject> ();
@@ -68,11 +68,11 @@ public class WorldManager : MonoBehaviour {
 			}
 		}
 
-		foreach (Level l1 in levelsAdded) {
+		/*foreach (Level l1 in levelsAdded) {
 			foreach (Level l2 in l1.nextLevels) {
 				Debug.Log (l1.name + ">>>" + l2.name);
 			}
-		}
+		}*/
 
 		firstLevel.Zero ();
 		levelsSpawned.Add (firstLevel);
@@ -85,30 +85,29 @@ public class WorldManager : MonoBehaviour {
 	IEnumerator Generate(){
 		while (levelsToSpawn.Count > 0) {
 			Level l = levelsToSpawn.Dequeue ();
+			l.GenerateConnectors ();
+			l.Spawn ();
 			foreach (Level child in l.nextLevels) {
 				levelsToSpawn.Enqueue (child);
 			}
-			l.GenerateConnectors ();
-			l.Spawn ();
-			yield return null;
+			yield return new WaitForEndOfFrame ();
 		}
 	}
 
-	public static bool blockIntersect(int3 pos, List<int3> toIgnore = null, int buffer = 4, Level ignoreLevel = null){
-		if (toIgnore != null && ignoreLevel==null && toIgnore.Contains (pos)) {
+	public static bool blockIntersect(int3 pos, List<int3> toIgnore = null, int buffer = 4, List<Level> ignoreLevels = null){
+		if (toIgnore != null && ignoreLevels==null && toIgnore.Contains (pos)) {
 			return false;
 		}
 		foreach (Level l in levelsSpawned) {
-			if (ignoreLevel == l) {
-				continue;
-			}
 			if (
 				(pos.x >= l.min.x + l.position.x - buffer) &&
 				(pos.x <= l.max.x + l.position.x + buffer) &&
 				(pos.z >= l.min.z + l.position.z - buffer) &&
 				(pos.z <= l.max.z + l.position.z + buffer)
 			) {
-				return true;
+				if(!(ignoreLevels!= null && ignoreLevels.Contains(l)) || !(toIgnore!= null && toIgnore.Contains(pos))){
+					return true;
+				}
 			}
 		}
 		if (toIgnore != null && toIgnore.Contains (pos)) {
@@ -117,7 +116,7 @@ public class WorldManager : MonoBehaviour {
 		return liminalBlocks.Contains (pos);
 	}
 
-	public static bool regionIntersect(int3 pos, int3 min, int3 max, int buffer = 4){
+	public static bool regionIntersect(int3 pos, int3 min, int3 max, int buffer = 4, List<int3> extraBlocks = null){
 		foreach (Level l in levelsSpawned) {
 			if (
 				(pos.x + max.x >= l.min.x + l.position.x - buffer) &&
@@ -128,7 +127,13 @@ public class WorldManager : MonoBehaviour {
 				return true;
 			}
 		}
-		foreach (int3 b in liminalBlocks) {
+		List<int3> blocksToAvoid = new List<int3> (liminalBlocks);
+		if (extraBlocks != null) {
+			foreach (int3 block in extraBlocks) {
+				blocksToAvoid.Add (block);
+			}
+		}
+		foreach (int3 b in blocksToAvoid) {
 			if (
 				(b.x >= min.x + pos.x - buffer) &&
 				(b.x <= max.x + pos.x + buffer) &&
