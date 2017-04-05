@@ -115,18 +115,10 @@ public class SpellManager : MonoBehaviour {
 							}
 							SpawnTiles.blocks.Add (spellPos, voidClone);
 						} else if (!SpawnTiles.tileExists(spellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_RAMP)) {
-<<<<<<< HEAD
 							Vector3 dir = spellPos - players [i].pos;
 							GameObject rampClone = Instantiate (ramp, new Vector3(spellPos.x,spellPos.y,spellPos.z),
 								Quaternion.LookRotation(dir));
 							rampClone.GetComponent<RampBehaviour> ().upSlopeDirection = spellPos - players [i].pos;
-=======
-							Vector3 rotate = SpawnTiles.roundVector(players [i].transform.position) - spellPos;
-							Debug.Log (rotate);
-							float rotation = snapRotation (rotate);
-							//Debug.Log (rotation);
-							GameObject rampClone = Instantiate (ramp, new Vector3(spellPos.x,spellPos.y - 1,spellPos.z), Quaternion.Euler (-90, rotation, 0));
->>>>>>> b997447a90ce2b14564f8831c88dd01425d46584
 							SpawnTiles.blocks.Add (spellPos, rampClone);
 						}
 					}
