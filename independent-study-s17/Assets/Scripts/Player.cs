@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour {
 
 	public bool isPlayer1;
 	public Transform selector;
 	public Vector3 pos;
+	public SpellDisplay spellDisplayObject;
 
 	private int inventorySize = 3;
 
@@ -15,7 +17,8 @@ public class Player : MonoBehaviour {
 	//set default spells 
 	private List<SpellManager.spell> spellInventory = new List<SpellManager.spell> {
 		SpellManager.spell.PUSH,
-		SpellManager.spell.CREATE_BLOCK
+		SpellManager.spell.CREATE_BLOCK,
+		SpellManager.spell.CREATE_VOID
 	};
 
 	public SpellManager.spell getCurrentSpell () {
@@ -31,6 +34,7 @@ public class Player : MonoBehaviour {
 			} else {
 				currentSpell = spellInventory [currentIndex + 1];
 			}
+			spellDisplayObject.UpdateText (currentSpell);
 		}
 	}
 

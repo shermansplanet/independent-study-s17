@@ -39,7 +39,7 @@ public class SpellManager : MonoBehaviour {
 	void Update () {
 		for (int i = 0; i < players.Length; i++) {
 			//uncomment line below to make use of player inventory 
-			//currentSpell [i] = players [i].getCurrentSpell ();
+			currentSpell [i] = players [i].getCurrentSpell ();
 			if (Input.GetButton("Spell"+i.ToString())) {
 				if (spellProgress [i] >= 1) {
 					spellProgress [i] = -1;
