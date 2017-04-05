@@ -106,3 +106,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9d42ad196f5944348bf11f58738262d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dir: 0
+  upSlopeDirection: {x: 0, y: 0, z: 0}

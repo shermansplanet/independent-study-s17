@@ -8,7 +8,7 @@ public class SpellManager : MonoBehaviour {
 
 	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK,CREATE_VOID,CREATE_RAMP};
 	//this is currently initialized this way for testing 
-	private spell[] currentSpell = new spell[]{spell.CREATE_BLOCK,spell.CREATE_VOID};
+	private spell[] currentSpell = new spell[]{spell.CREATE_VOID,spell.PUSH};
 	public Player[] players;
 
 	public GameObject[] selectors;
@@ -39,7 +39,7 @@ public class SpellManager : MonoBehaviour {
 	void Update () {
 		for (int i = 0; i < players.Length; i++) {
 			//uncomment line below to make use of player inventory 
-			//currentSpell [i] = players [i].getCurrentSpell ();
+			currentSpell [i] = players [i].getCurrentSpell ();
 			if (Input.GetButton("Spell"+i.ToString())) {
 				if (spellProgress [i] >= 1) {
 					spellProgress [i] = -1;
