@@ -39,7 +39,7 @@ public class SpellManager : MonoBehaviour {
 	void Update () {
 		for (int i = 0; i < players.Length; i++) {
 			//uncomment line below to make use of player inventory 
-			currentSpell [i] = players [i].getCurrentSpell ();
+			//currentSpell [i] = players [i].getCurrentSpell ();
 			if (Input.GetButton("Spell"+i.ToString())) {
 				if (spellProgress [i] >= 1) {
 					spellProgress [i] = -1;
@@ -80,7 +80,8 @@ public class SpellManager : MonoBehaviour {
 					}
 					//CREATE BLOCK/PUSHBLOCK
 					else if (currentSpell [i].Equals (spell.CREATE_BLOCK) && 
-						(!SpawnTiles.tileExists (spellPos)) || SpawnTiles.blocks[spellPos].GetComponent<WaterManager>() != null) {
+						(!SpawnTiles.tileExists (spellPos)) || 
+						(SpawnTiles.tileExists (spellPos) && SpawnTiles.blocks[spellPos].GetComponent<WaterManager>() != null)) {
 						//destory current water block
 						if (SpawnTiles.tileExists (spellPos)) {
 							WaterManager currentWater = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)].GetComponent<WaterManager> ();
@@ -114,10 +115,11 @@ public class SpellManager : MonoBehaviour {
 							}
 							SpawnTiles.blocks.Add (spellPos, voidClone);
 						} else if (!SpawnTiles.tileExists(spellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_RAMP)) {
-							float rotate = players [i].transform.localEulerAngles.y;
-							rotate = snapRotation (rotate);
+							Vector3 rotate = SpawnTiles.roundVector(players [i].transform.position) - spellPos;
 							Debug.Log (rotate);
-							GameObject rampClone = Instantiate (ramp, new Vector3(spellPos.x,spellPos.y - 1,spellPos.z), Quaternion.Euler (-90, rotate, 0));
+							float rotation = snapRotation (rotate);
+							//Debug.Log (rotation);
+							GameObject rampClone = Instantiate (ramp, new Vector3(spellPos.x,spellPos.y - 1,spellPos.z), Quaternion.Euler (-90, rotation, 0));
 							SpawnTiles.blocks.Add (spellPos, rampClone);
 						}
 					}
@@ -159,14 +161,17 @@ public class SpellManager : MonoBehaviour {
 		return switched ? spell.NO_EFFECT : getSpellCombo(spell2,spell1,true);
 	}
 
-	float snapRotation(float f) {
-		f = Mathf.Max (0, f - 45);
-		if (f <= 90) {
+	float snapRotation(Vector3 r) {
+		float x = r.x;
+		float z = r.z;
+		//Debug.Log (x);
+		//Debug.Log (z);
+		if (x < 0) {
 			return 0;
-		} else if (f <= 180) {
-			return 90;
-		} else if (f <= 270) {
+		} else if (x > 0) {
 			return 180;
+		} else if (z > 0 ) {
+			return 90;
 		} else {
 			return 270;
 		}
