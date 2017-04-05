@@ -113,7 +113,7 @@ public class Level {
 			instance.transform.SetParent (obj.transform);
 			instance.transform.rotation = Quaternion.LookRotation (directions [b.dir].ToVector());
 			if (b.type.name == "ramp") {
-				instance.GetComponent<RampBehaviour> ().dir = b.dir;
+//				instance.GetComponent<RampBehaviour> ().dir = b.dir;
 				instance.GetComponent<RampBehaviour> ().upSlopeDirection = directions [b.dir].ToVector();
 			}
 		}

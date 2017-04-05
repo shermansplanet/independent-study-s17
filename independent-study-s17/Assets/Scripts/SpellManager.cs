@@ -80,7 +80,7 @@ public class SpellManager : MonoBehaviour {
 					}
 					//CREATE BLOCK/PUSHBLOCK
 					else if (currentSpell [i].Equals (spell.CREATE_BLOCK) && 
-						(!SpawnTiles.tileExists (spellPos)) || SpawnTiles.blocks[spellPos].GetComponent<WaterManager>() != null) {
+						(!SpawnTiles.tileExists (spellPos) || SpawnTiles.blocks[spellPos].GetComponent<WaterManager>() != null)) {
 						//destory current water block
 						if (SpawnTiles.tileExists (spellPos)) {
 							WaterManager currentWater = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)].GetComponent<WaterManager> ();
@@ -114,10 +114,10 @@ public class SpellManager : MonoBehaviour {
 							}
 							SpawnTiles.blocks.Add (spellPos, voidClone);
 						} else if (!SpawnTiles.tileExists(spellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_RAMP)) {
-							float rotate = players [i].transform.localEulerAngles.y;
-							rotate = snapRotation (rotate);
-							Debug.Log (rotate);
-							GameObject rampClone = Instantiate (ramp, new Vector3(spellPos.x,spellPos.y - 1,spellPos.z), Quaternion.Euler (-90, rotate, 0));
+							Vector3 dir = spellPos - players [i].pos;
+							GameObject rampClone = Instantiate (ramp, new Vector3(spellPos.x,spellPos.y,spellPos.z),
+								Quaternion.LookRotation(dir));
+							rampClone.GetComponent<RampBehaviour> ().upSlopeDirection = spellPos - players [i].pos;
 							SpawnTiles.blocks.Add (spellPos, rampClone);
 						}
 					}
