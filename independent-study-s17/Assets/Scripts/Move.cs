@@ -145,4 +145,8 @@ public class Move : MonoBehaviour {
 	}
 
 
+	public static void IceMove(Player p){
+		p.transform.position += p.transform.forward * Time.deltaTime * speed;
+	}
+
 }

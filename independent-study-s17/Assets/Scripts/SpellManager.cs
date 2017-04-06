@@ -6,9 +6,10 @@ public class SpellManager : MonoBehaviour {
 
 	const float spellSpeed = 1;
 
-	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK,CREATE_VOID,CREATE_RAMP};
+	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK,CREATE_VOID,CREATE_RAMP,
+						CREATE_ICE, CREATE_ICEBLOCK, REMOVE_ICE, FREEZE_WATER};
 	//this is currently initialized this way for testing 
-	private spell[] currentSpell = new spell[]{spell.CREATE_VOID,spell.PUSH};
+	private spell[] currentSpell = new spell[]{spell.CREATE_ICE,spell.CREATE_ICE};
 	public Player[] players;
 
 	public GameObject[] selectors;
@@ -39,7 +40,7 @@ public class SpellManager : MonoBehaviour {
 	void Update () {
 		for (int i = 0; i < players.Length; i++) {
 			//uncomment line below to make use of player inventory 
-			currentSpell [i] = players [i].getCurrentSpell ();
+			//currentSpell [i] = players [i].getCurrentSpell ();
 			if (Input.GetButton("Spell"+i.ToString())) {
 				if (spellProgress [i] >= 1) {
 					spellProgress [i] = -1;
@@ -63,7 +64,7 @@ public class SpellManager : MonoBehaviour {
 						VoidManager v = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)].GetComponent<VoidManager> ();
 						if (v != null) {
 							foreach (GameObject g in v.getAllObjects()) {
-								if (g.GetComponent<Spellable>() != null) {
+								if (g.GetComponent<Spellable> () != null) {
 									spellableBlock = g.GetComponent<Spellable> ();
 									break;
 								}
@@ -79,9 +80,9 @@ public class SpellManager : MonoBehaviour {
 						}
 					}
 					//CREATE BLOCK/PUSHBLOCK
-					else if (currentSpell [i].Equals (spell.CREATE_BLOCK) && 
-						(!SpawnTiles.tileExists (spellPos)) || 
-						(SpawnTiles.tileExists (spellPos) && SpawnTiles.blocks[spellPos].GetComponent<WaterManager>() != null)) {
+					else if (currentSpell [i].Equals (spell.CREATE_BLOCK) &&
+					         (!SpawnTiles.tileExists (spellPos)) ||
+					         (SpawnTiles.tileExists (spellPos) && SpawnTiles.blocks [spellPos].GetComponent<WaterManager> () != null)) {
 						//destory current water block
 						if (SpawnTiles.tileExists (spellPos)) {
 							WaterManager currentWater = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)].GetComponent<WaterManager> ();
@@ -101,11 +102,11 @@ public class SpellManager : MonoBehaviour {
 					else if (currentSpell [i].Equals (spell.CREATE_VOID)) {
 						//no void on top of another void
 						if (otherPlayer == -1 &&
-							(!SpawnTiles.tileExists(SpawnTiles.roundVector (spellPos)) ||
-							(SpawnTiles.tileExists(SpawnTiles.roundVector (spellPos)) &&
-									(SpawnTiles.blocks[SpawnTiles.roundVector (spellPos)].GetComponent<VoidManager>() == null)))) {
+						    (!SpawnTiles.tileExists (SpawnTiles.roundVector (spellPos)) ||
+						    (SpawnTiles.tileExists (SpawnTiles.roundVector (spellPos)) &&
+						    (SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)].GetComponent<VoidManager> () == null)))) {
 							GameObject voidClone = Instantiate (Voidblock, spellPos, Quaternion.Euler (0, 0, 0));
-							VoidManager v = voidClone.GetComponent<VoidManager>();
+							VoidManager v = voidClone.GetComponent<VoidManager> ();
 							//add current object to void inventory if needed
 							if (SpawnTiles.tileExists (spellPos)) {
 								GameObject g = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)];
@@ -114,12 +115,20 @@ public class SpellManager : MonoBehaviour {
 								SpawnTiles.blocks.Remove (spellPos);
 							}
 							SpawnTiles.blocks.Add (spellPos, voidClone);
-						} else if (!SpawnTiles.tileExists(spellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_RAMP)) {
+						} else if (!SpawnTiles.tileExists (spellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_RAMP)) {
 							Vector3 dir = spellPos - players [i].pos;
-							GameObject rampClone = Instantiate (ramp, new Vector3(spellPos.x,spellPos.y,spellPos.z),
-								Quaternion.LookRotation(dir));
+							GameObject rampClone = Instantiate (ramp, new Vector3 (spellPos.x, spellPos.y, spellPos.z),
+								                       Quaternion.LookRotation (dir));
 							rampClone.GetComponent<RampBehaviour> ().upSlopeDirection = spellPos - players [i].pos;
 							SpawnTiles.blocks.Add (spellPos, rampClone);
+						}
+					}
+
+					//ADD ICE
+					else if (currentSpell [i].Equals (spell.CREATE_ICE)) {
+						if (otherPlayer == -1 && SpawnTiles.tileExists (spellPos)) {
+							SpawnTiles.blocks [spellPos].AddComponent<IceManager>();
+							SpawnTiles.blocks [spellPos].GetComponent<IceManager> ().updateMaterial ();
 						}
 					}
 
