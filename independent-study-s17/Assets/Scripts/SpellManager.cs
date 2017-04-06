@@ -6,8 +6,8 @@ public class SpellManager : MonoBehaviour {
 
 	const float spellSpeed = 1;
 
-	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK,CREATE_VOID,CREATE_RAMP,
-						CREATE_ICE, CREATE_ICEBLOCK, REMOVE_ICE, FREEZE_WATER};
+	public enum spell{NO_EFFECT,PUSH, PULL, DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK,CREATE_VOID,CREATE_RAMP,
+						CREATE_ICE, CREATE_ICEBLOCK, REMOVE_ICE, FREEZE_WATER, FREEZE_MACHINE};
 	//this is currently initialized this way for testing 
 	private spell[] currentSpell = new spell[]{spell.CREATE_ICE,spell.CREATE_VOID};
 	public Player[] players;
@@ -157,6 +157,8 @@ public class SpellManager : MonoBehaviour {
 			switch (spell2) {
 			case spell.PUSH:
 				return spell.DOUBLE_PUSH;
+			case spell.CREATE_VOID:
+				return spell.PULL;
 			}
 			break;
 		case spell.CREATE_BLOCK:
