@@ -9,7 +9,7 @@ public class SpellManager : MonoBehaviour {
 	public enum spell{NO_EFFECT,PUSH,DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK,CREATE_VOID,CREATE_RAMP,
 						CREATE_ICE, CREATE_ICEBLOCK, REMOVE_ICE, FREEZE_WATER};
 	//this is currently initialized this way for testing 
-	private spell[] currentSpell = new spell[]{spell.CREATE_ICE,spell.CREATE_ICE};
+	private spell[] currentSpell = new spell[]{spell.CREATE_ICE,spell.CREATE_VOID};
 	public Player[] players;
 
 	public GameObject[] selectors;
@@ -127,8 +127,14 @@ public class SpellManager : MonoBehaviour {
 					//ADD ICE
 					else if (currentSpell [i].Equals (spell.CREATE_ICE)) {
 						if (otherPlayer == -1 && SpawnTiles.tileExists (spellPos)) {
-							SpawnTiles.blocks [spellPos].AddComponent<IceManager>();
+							SpawnTiles.blocks [spellPos].AddComponent<IceManager> ();
 							SpawnTiles.blocks [spellPos].GetComponent<IceManager> ().updateMaterial ();
+						} else if (SpawnTiles.tileExists (spellPos)) {
+							IceManager active = SpawnTiles.blocks [spellPos].GetComponent<IceManager> ();
+							if (active != null) {
+								active.applyPastMaterial ();
+								Destroy (active);
+							}
 						}
 					}
 
@@ -163,6 +169,12 @@ public class SpellManager : MonoBehaviour {
 			switch (spell2) {
 			case spell.CREATE_BLOCK:
 				return spell.CREATE_RAMP;
+			}
+			break;
+		case spell.CREATE_ICE:
+			switch (spell2) {
+			case spell.CREATE_VOID:
+				return spell.REMOVE_ICE;
 			}
 			break;
 		}
