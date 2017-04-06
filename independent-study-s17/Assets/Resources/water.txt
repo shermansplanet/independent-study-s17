@@ -1,0 +1,17 @@
+0,0,0,static,0
+0,0,-2,static,1
+-2,0,-2,static,1
+-2,0,0,static,1
+-2,0,2,static,1
+0,0,2,static,1
+2,0,2,static,1
+2,0,0,static,1
+2,0,-2,static,1
+4,0,-2,spawn,1
+4,0,0,spawn,1
+4,0,2,spawn,1
+-4,0,2,goal,1
+-4,0,0,goal,1
+-4,0,-2,goal,1
+0,2,0,water,1
+2,2,0,water,3

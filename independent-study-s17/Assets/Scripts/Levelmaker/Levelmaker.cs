@@ -70,7 +70,7 @@ public class Levelmaker : MonoBehaviour {
 		indicatorMaterial = indicator.GetComponent<Renderer> ().material;
 		RefreshDisplay ();
 		cameraOffset = transform.InverseTransformVector(transform.position);
-		originalRotation = transform.rotation;
+		originalRotation = transform.rotation;	
 		currentDirection = 1;
 		instance = this;
 	}

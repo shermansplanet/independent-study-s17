@@ -2189,10 +2189,13 @@ MonoBehaviour:
     color: {r: 1, g: 1, b: 1, a: 0}
     model: {fileID: 1379756730562872, guid: 195f226c9002d4844ac6266344283119, type: 2}
   - name: spawn
-    color: {r: 0, g: 0.75172424, b: 1, a: 0}
+    color: {r: 1, g: 0.8482759, b: 0, a: 0}
     model: {fileID: 1379756730562872, guid: 195f226c9002d4844ac6266344283119, type: 2}
   - name: goal
     color: {r: 0.547, g: 1, b: 0, a: 0}
+    model: {fileID: 1379756730562872, guid: 195f226c9002d4844ac6266344283119, type: 2}
+  - name: water
+    color: {r: 0, g: 0.75172424, b: 1, a: 0}
     model: {fileID: 1379756730562872, guid: 195f226c9002d4844ac6266344283119, type: 2}
   - name: ramp
     color: {r: 0.47058827, g: 0.47058827, b: 0.47058827, a: 0}
