@@ -21,7 +21,6 @@ public class PhysicsManager : MonoBehaviour {
 		}
 
 		//Move player if in water: NOTE: THIS TECHNOLOGY ISN'T READY
-		/*
 		foreach (Player p in players) {
 			Vector3 currentTile = new Vector3 (
 				Mathf.Round (p.transform.position.x/2),
@@ -29,12 +28,10 @@ public class PhysicsManager : MonoBehaviour {
 				Mathf.Round (p.transform.position.z/2))*2;
 			if (SpawnTiles.tileExists (SpawnTiles.roundVector (currentTile)) &&
 				SpawnTiles.blocks [SpawnTiles.roundVector (currentTile)].GetComponent<WaterManager> () != null) {
-				Debug.Log ("In water");
 				Vector3 newPosition = p.transform.position + Move.WaterMove(SpawnTiles.blocks [SpawnTiles.roundVector (currentTile)].GetComponent<WaterManager> ());
 				p.transform.position = newPosition;
 			}
 		}
-		*/
 	}
 
 	void simulatePhysics(){

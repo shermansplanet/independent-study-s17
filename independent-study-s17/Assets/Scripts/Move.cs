@@ -135,22 +135,27 @@ public class Move : MonoBehaviour {
 
 	public static Vector3 WaterMove(WaterManager wtr) {
 		Vector3 next = new Vector3(0,0,0);
+		float constant = 0.786F;
 		switch (wtr.getDirection()) {
 		case 0:
-			next = RIGHT * Time.deltaTime * speed;
+			next = (RIGHT + UP) * Time.deltaTime * speed * constant;
 			break;
 		case 90:
-			next = UP * Time.deltaTime * speed;
+			next = (RIGHT + UP * -1) * Time.deltaTime * speed * constant;
 			break;
 		case 180:
-			next = RIGHT * -1 * Time.deltaTime * speed;
+			next = (RIGHT + UP) * -1 * Time.deltaTime * speed * constant;
 			break;
 		case 270:
-			next = UP * -1 * Time.deltaTime * speed;
+			next = (RIGHT * -1 + UP) * Time.deltaTime * speed * constant;
 			break;
 		}
 		return next;
 	}
 
+
+	public static void IceMove(Player p){
+		p.transform.position += p.transform.forward * Time.deltaTime * speed;
+	}
 
 }
