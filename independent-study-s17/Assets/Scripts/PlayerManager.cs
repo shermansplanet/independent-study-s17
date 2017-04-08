@@ -15,7 +15,9 @@ public class PlayerManager : MonoBehaviour {
 	void Update () {
 		for (int i = 0; i < players.Length; ++i) {
 
-			Vector3 below = SpawnTiles.round2Vector (players[i].transform.position) + Vector3.down * 2;
+			Move.ObjectMove ("Vertical" + i.ToString (), "Horizontal" + i.ToString (), players [i]);
+
+			/*Vector3 below = SpawnTiles.round2Vector (players[i].transform.position) + Vector3.down * 2;
 			Debug.Log (below);
 			//Debug.Log (SpawnTiles.blocks [below].GetComponent<IceManager> ());
 			if (SpawnTiles.tileExists (below) && SpawnTiles.blocks [below].GetComponent<IceManager> () == null) {
@@ -25,7 +27,7 @@ public class PlayerManager : MonoBehaviour {
 			} else {
 				//falling could go here
 				break;
-			}
+			}*/
 
 			if (Input.GetButtonDown ("RotateSpell" + i.ToString())) {
 				players [i].rotateSpell();

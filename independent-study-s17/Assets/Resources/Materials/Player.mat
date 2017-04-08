@@ -6,7 +6,7 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Pushblock
+  m_Name: Player
   m_Shader: {fileID: 4800000, guid: c7fb0c28f20c84d2a9dc19dec5731b89, type: 3}
   m_ShaderKeywords: _EMISSION
   m_LightmapFlags: 1
@@ -121,16 +121,16 @@ Material:
     m_Colors:
     - first:
         name: _Color
-      second: {r: 0.7647059, g: 0.23848581, b: 0.11807961, a: 1}
+      second: {r: 0.78676474, g: 0.743357, b: 0.6016436, a: 1}
     - first:
         name: _EmissionColor
       second: {r: 0, g: 0, b: 0, a: 1}
     - first:
         name: _xColor
-      second: {r: 0.41911763, g: 0.17654756, b: 0.15408736, a: 1}
+      second: {r: 0.72404844, g: 0.75932467, b: 0.7941176, a: 1}
     - first:
         name: _yColor
-      second: {r: 0.6838235, g: 0.25952005, b: 0.22123703, a: 1}
+      second: {r: 0.86764705, g: 0.86764705, b: 0.86764705, a: 1}
     - first:
         name: _zColor
-      second: {r: 0.53676474, g: 0.22249246, b: 0.19339317, a: 1}
+      second: {r: 0.5330882, g: 0.5755578, b: 0.625, a: 1}
