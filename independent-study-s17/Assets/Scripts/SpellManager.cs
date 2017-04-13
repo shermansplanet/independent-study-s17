@@ -8,9 +8,9 @@ public class SpellManager : MonoBehaviour {
 
 	public enum spell{NO_EFFECT,PUSH, PULL, DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK,CREATE_VOID,CREATE_RAMP,
 						CREATE_ICE, CREATE_ICEBLOCK, REMOVE_ICE, FREEZE_WATER, ICE_ABOVE, WATER_ICE,
-						RAISE, RAISE_PUSH, LOWER, DOUBLE_RAISE};
+						RAISE, RAISE_PUSH, LOWER, DOUBLE_RAISE, CREATE_BLACKHOLE};
 	//this is currently initialized this way for testing 
-	private spell[] currentSpell = new spell[]{spell.CREATE_ICE,spell.CREATE_VOID};
+	private spell[] currentSpell = new spell[]{spell.CREATE_ICE,spell.RAISE};
 	public Player[] players;
 
 	public GameObject[] selectors;
@@ -21,6 +21,7 @@ public class SpellManager : MonoBehaviour {
 	public GameObject Pushblock;
 	public GameObject Voidblock;
 	public GameObject ramp;
+	public GameObject BlackHole;
 
 	private float[] spellProgress = new float[]{0,0};
 
@@ -48,6 +49,7 @@ public class SpellManager : MonoBehaviour {
 					Vector3 playerPos = getTile(players [i].transform.position);
 					int otherPlayer = -1;
 					Vector3 spellPos = selectors [i].transform.position;
+					Vector3 belowSpellPos = new Vector3 (spellPos.x, spellPos.y - 2, spellPos.z);
 					Vector3 aboveSpellPos = new Vector3 (spellPos.x, spellPos.y + 2, spellPos.z);
 					for (int j = 0; j < players.Length; j++) {
 						if (j == i)
@@ -133,29 +135,39 @@ public class SpellManager : MonoBehaviour {
 								SpawnTiles.blocks.Remove (spellPos);
 							}
 							SpawnTiles.blocks.Add (spellPos, voidClone);
-						} else if (!SpawnTiles.tileExists (spellPos) &&
-						           !SpawnTiles.tileExists (new Vector3 (spellPos.x, spellPos.y - 2, spellPos.z)) &&
-						           getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_RAMP)) {
+						} 
+						//create ramp
+						else if (!SpawnTiles.tileExists (spellPos) &&
+						         !SpawnTiles.tileExists (belowSpellPos) &&
+						         getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_RAMP)) {
 							Vector3 dir = spellPos - players [i].pos;
-							GameObject rampClone = Instantiate (ramp, new Vector3 (spellPos.x, spellPos.y, spellPos.z),
-								                       Quaternion.LookRotation (dir));
+							GameObject rampClone = Instantiate (ramp, spellPos, Quaternion.LookRotation (dir));
 							rampClone.GetComponent<RampBehaviour> ().upSlopeDirection = spellPos - players [i].pos;
 							SpawnTiles.blocks.Add (spellPos, rampClone);
+						}
+						//create Black Hole
+						else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_BLACKHOLE)) {
+							if (SpawnTiles.tileExists (spellPos)) {
+								Destroy (SpawnTiles.blocks [spellPos].gameObject);
+								SpawnTiles.blocks.Remove (spellPos);
+							}
+							GameObject bh = Instantiate(BlackHole, spellPos, Quaternion.Euler(0,0,0));
+							SpawnTiles.blocks.Add(spellPos, bh);
 						}
 					}
 
 					//ADD ICE
 					else if (currentSpell [i].Equals (spell.CREATE_ICE)) {
 						//add ice
-						if (otherPlayer == -1 && SpawnTiles.tileExists (spellPos) &&
-						    SpawnTiles.blocks [spellPos].GetComponent<VoidManager> () == null &&
-						    SpawnTiles.blocks [spellPos].GetComponent<WaterManager> () == null) {
-							SpawnTiles.blocks [spellPos].AddComponent<IceManager> ();
-							SpawnTiles.blocks [spellPos].GetComponent<IceManager> ().updateMaterial ();
+						if (otherPlayer == -1 && SpawnTiles.tileExists (belowSpellPos) &&
+							SpawnTiles.blocks [belowSpellPos].GetComponent<VoidManager> () == null &&
+							SpawnTiles.blocks [belowSpellPos].GetComponent<WaterManager> () == null) {
+							SpawnTiles.blocks [belowSpellPos].AddComponent<IceManager> ();
+							SpawnTiles.blocks [belowSpellPos].GetComponent<IceManager> ().updateMaterial ();
 						} 
-						//ice above
-						else if (SpawnTiles.tileExists (aboveSpellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.ICE_ABOVE)) {
-							GameObject above = SpawnTiles.blocks [aboveSpellPos];
+						//ice above - note that it places ice on the top face of spellPos tile
+						else if (SpawnTiles.tileExists (spellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.ICE_ABOVE)) {
+							GameObject above = SpawnTiles.blocks [spellPos];
 							if (above.GetComponent<IceManager> () == null &&
 							    above.GetComponent<VoidManager> () == null &&
 							    above.GetComponent<WaterManager> () == null) {
@@ -164,8 +176,8 @@ public class SpellManager : MonoBehaviour {
 							}
 						}
 						//remove ice
-						else if (SpawnTiles.tileExists (spellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.REMOVE_ICE)) {
-							IceManager active = SpawnTiles.blocks [spellPos].GetComponent<IceManager> ();
+						else if (SpawnTiles.tileExists (belowSpellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.REMOVE_ICE)) {
+							IceManager active = SpawnTiles.blocks [belowSpellPos].GetComponent<IceManager> ();
 							if (active != null) {
 								active.applyPastMaterial ();
 								Destroy (active);
@@ -176,30 +188,26 @@ public class SpellManager : MonoBehaviour {
 					//Raise
 					else if (currentSpell [i].Equals (spell.RAISE)) {
 						//raise block
-						if (otherPlayer == -1 && SpawnTiles.tileExists (spellPos) && 
-							!SpawnTiles.tileExists (aboveSpellPos)) {
-							GameObject toMove = SpawnTiles.blocks [spellPos];
-							SpawnTiles.blocks.Remove (spellPos);
-							SpawnTiles.blocks.Add (aboveSpellPos, toMove);
-							toMove.transform.Translate (Vector3.up * 2);
+						if (otherPlayer == -1 && SpawnTiles.tileExists (spellPos) &&
+						    !SpawnTiles.tileExists (aboveSpellPos)) {
+							moveAnyObject (spellPos, aboveSpellPos);
 						}
 						//double raise
 						else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.DOUBLE_RAISE) &&
-							SpawnTiles.tileExists(spellPos) &&
-							!SpawnTiles.tileExists(new Vector3(spellPos.x, spellPos.y + 4, spellPos.z))) {
-							GameObject toMove = SpawnTiles.blocks [spellPos];
-							SpawnTiles.blocks.Remove (spellPos);
-							SpawnTiles.blocks.Add (new Vector3(spellPos.x, spellPos.y + 4, spellPos.z), toMove);
-							toMove.transform.Translate (Vector3.up * 4);
+						         SpawnTiles.tileExists (spellPos) &&
+						         !SpawnTiles.tileExists (aboveSpellPos + Vector3.up * 2)) {
+							moveAnyObject (spellPos, aboveSpellPos + Vector3.up * 2);
 						}
 						//raise push
 						else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.RAISE_PUSH) &&
-							SpawnTiles.tileExists(spellPos)) {
-							GameObject toMove = SpawnTiles.blocks [spellPos];
-							Vector3 upAndOver = aboveSpellPos - players [i].pos;;
-							SpawnTiles.blocks.Remove (spellPos);
-							SpawnTiles.blocks.Add (upAndOver, toMove);
-							toMove.transform.position = upAndOver;
+						         SpawnTiles.tileExists (spellPos)) {
+							Vector3 upAndOver = new Vector3 ((spellPos.x - playerPos.x) + spellPos.x, spellPos.y + 2, (spellPos.z - playerPos.z) + spellPos.z);
+							moveAnyObject (spellPos, upAndOver);
+						}
+						//lower
+						else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.LOWER) &&
+						         SpawnTiles.tileExists (spellPos)) {
+							moveAnyObject (spellPos, belowSpellPos);
 						}
 					}
 
@@ -235,12 +243,16 @@ public class SpellManager : MonoBehaviour {
 			switch (spell2) {
 			case spell.CREATE_BLOCK:
 				return spell.CREATE_RAMP;
+			case spell.CREATE_VOID:
+				return spell.CREATE_BLACKHOLE;
 			}
 			break;
 		case spell.CREATE_ICE:
 			switch (spell2) {
 			case spell.CREATE_VOID:
 				return spell.REMOVE_ICE;
+			case spell.RAISE:
+				return spell.ICE_ABOVE;
 			}
 			break;
 		case spell.RAISE:
@@ -273,7 +285,7 @@ public class SpellManager : MonoBehaviour {
 		}
 	}
 
-	void moveAnyObject(Vector3 oldPos, Vector3 newPos){
+	static void moveAnyObject(Vector3 oldPos, Vector3 newPos){
 		if (SpawnTiles.tileExists(oldPos) && !SpawnTiles.tileExists(newPos)) {
 			GameObject toMove = SpawnTiles.blocks [oldPos];
 			SpawnTiles.blocks.Remove (oldPos);

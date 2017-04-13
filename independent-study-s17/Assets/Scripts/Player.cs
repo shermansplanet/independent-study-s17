@@ -19,7 +19,9 @@ public class Player : MonoBehaviour {
 	private List<SpellManager.spell> spellInventory = new List<SpellManager.spell> {
 		SpellManager.spell.PUSH,
 		SpellManager.spell.CREATE_BLOCK,
-		SpellManager.spell.CREATE_VOID
+		SpellManager.spell.CREATE_VOID,
+		SpellManager.spell.CREATE_ICE,
+		SpellManager.spell.RAISE
 	};
 
 	public SpellManager.spell getCurrentSpell () {

@@ -66,6 +66,33 @@ public class PhysicsManager : MonoBehaviour {
 			}
 		}
 
+		//Black Hole Physics
+		List<GameObject> blackholes = new List<GameObject>();
+
+		foreach (GameObject b in GameObject.FindGameObjectsWithTag("Blackhole")) {
+			if (b != null) {
+				blackholes.Add (b);
+			}
+		}
+
+		foreach (GameObject b in blackholes) {
+			Vector3 up = b.transform.position + Vector3.up * 2;
+			Vector3 down = b.transform.position + Vector3.down * 2;
+			Vector3 left = b.transform.position + Vector3.left * 2;
+			Vector3 right = b.transform.position + Vector3.right * 2;
+			Vector3 forward = b.transform.position + Vector3.forward * 2;
+			Vector3 back = b.transform.position + Vector3.back * 2;
+
+			Vector3[] reachable = new Vector3[]{up, down, left, right, forward, back};
+	
+			foreach (Vector3 v in reachable) {
+				if (SpawnTiles.tileExists(v)){
+					Destroy(SpawnTiles.blocks[v].gameObject);
+					SpawnTiles.blocks.Remove(v);
+				}
+			}
+		}
+
 		//Water physics
 		List<WaterManager> waterblocks = new List<WaterManager>();
 
