@@ -391,6 +391,10 @@ MonoBehaviour:
     prefab: {fileID: 1217338711563642, guid: ed523eede567c4f3fa8c42dd67c2b4cc, type: 2}
   - name: water
     prefab: {fileID: 1467663256672688, guid: b2c5e619485364afc946de80d0be4675, type: 2}
+  - name: button
+    prefab: {fileID: 1969607795005678, guid: a78ea5e21daac485489035cbfbd885b9, type: 2}
+  - name: door
+    prefab: {fileID: 1871003359801230, guid: e738e7a9f9b5f44e7b1eb3044b905776, type: 2}
 --- !u!4 &553324668
 Transform:
   m_ObjectHideFlags: 0

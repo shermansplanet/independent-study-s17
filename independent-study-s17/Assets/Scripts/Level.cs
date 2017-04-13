@@ -11,6 +11,7 @@ public class Level {
 		public int3 pos { get; set; }
 		public byte dir { get; set; }
 		public BlockType type { get; set; }
+		public GameObject spawnedBlock;
 	}
 
 	public class LiminalBlock{
@@ -54,6 +55,8 @@ public class Level {
 	};
 
 	private List<Block> iceBlocks;
+	private Dictionary<int,Block> buttons;
+	private Dictionary<Block,int> doors;
 
 	public Level(string levelName){
 		string s = System.IO.File.ReadAllText(levelName);
@@ -65,7 +68,8 @@ public class Level {
 		endBlocks = new List<int3> ();
 		obj = new GameObject (name);
 		iceBlocks = new List<Block> ();
-
+		buttons = new Dictionary<int, Block> ();
+		doors = new Dictionary<Block, int> ();
 		blocks = new List<Block> ();
 		spellPrereqs = new List<List<SpellManager.spell>> ();
 		liminalBlocks = new List<Block> ();
@@ -100,14 +104,22 @@ public class Level {
 						break;
 					}
 				}
+
+				byte dir = item.Length < 5 ? (byte)0 : byte.Parse (item [4]);
+				Block b = new Block { pos = pos, type = type, dir = dir };
+
 				if (item [3] == "spawn") {
 					startBlocks.Add (pos);
 				} else if (item [3] == "goal") {
 					endBlocks.Add (pos);
+				} else if (item [3] == "button") {
+					buttons.Add (int.Parse(item [5]), b);
+				} else if (item [3] == "door") {
+					doors.Add (b, int.Parse(item [5]));
 				}
-				byte dir = item.Length < 5 ? (byte)0 : byte.Parse (item [4]);
-				Block b = new Block { pos = pos, type = type, dir = dir };
+
 				blocks.Add (b);
+
 				if (icy) {
 					iceBlocks.Add (b);
 				}
@@ -121,17 +133,20 @@ public class Level {
 		if (!SpawnTiles.blocks.ContainsKey (pos)) {
 			GameObject instance = GameObject.Instantiate (b.type.prefab);
 			instance.transform.position = pos;
-			SpawnTiles.blocks.Add (pos, instance);
+			if (b.type.name != "button") {
+				SpawnTiles.blocks.Add (pos, instance);
+			}
 			instance.transform.SetParent (obj.transform);
 			instance.transform.rotation = Quaternion.LookRotation (directions [b.dir].ToVector());
 			if (b.type.name == "ramp") {
-				instance.GetComponent<RampBehaviour> ().upSlopeDirection = directions [b.dir].ToVector();
-			}else if (b.type.name == "water") {
+				instance.GetComponent<RampBehaviour> ().upSlopeDirection = directions [b.dir].ToVector ();
+			} else if (b.type.name == "water") {
 				instance.GetComponent<WaterManager> ().UpdateDirection ();
 			}
 			if (iceBlocks.Contains (b)) {
 				instance.AddComponent<IceManager> ().updateMaterial();
 			}
+			b.spawnedBlock = instance;
 		}
 	}
 
@@ -143,6 +158,9 @@ public class Level {
 		foreach (Block b in liminalBlocks) {
 			Vector3 pos = b.pos.ToVector ();
 			SpawnNewBlock (b, pos);
+		}
+		foreach (Block b in doors.Keys) {
+			buttons [doors [b]].spawnedBlock.GetComponent<ButtonBehaviour> ().doors.Add (b.spawnedBlock.GetComponent<DoorBehaviour> ());
 		}
 	}
 

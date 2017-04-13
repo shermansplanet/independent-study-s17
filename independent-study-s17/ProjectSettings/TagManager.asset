@@ -9,6 +9,7 @@ TagManager:
   - Water
   - Void
   - Blackhole
+  - Button
   layers:
   - Default
   - TransparentFX
