@@ -7,7 +7,8 @@ public class SpellManager : MonoBehaviour {
 	const float spellSpeed = 1;
 
 	public enum spell{NO_EFFECT,PUSH, PULL, DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK,CREATE_VOID,CREATE_RAMP,
-						CREATE_ICE, CREATE_ICEBLOCK, REMOVE_ICE, FREEZE_WATER, FREEZE_MACHINE};
+						CREATE_ICE, CREATE_ICEBLOCK, REMOVE_ICE, FREEZE_WATER, ICE_ABOVE, WATER_ICE,
+						RAISE, RAISE_PUSH, LOWER, DOUBLE_RAISE};
 	//this is currently initialized this way for testing 
 	private spell[] currentSpell = new spell[]{spell.CREATE_ICE,spell.CREATE_VOID};
 	public Player[] players;
@@ -47,6 +48,7 @@ public class SpellManager : MonoBehaviour {
 					Vector3 playerPos = getTile(players [i].transform.position);
 					int otherPlayer = -1;
 					Vector3 spellPos = selectors [i].transform.position;
+					Vector3 aboveSpellPos = new Vector3 (spellPos.x, spellPos.y + 2, spellPos.z);
 					for (int j = 0; j < players.Length; j++) {
 						if (j == i)
 							continue;
@@ -77,6 +79,22 @@ public class SpellManager : MonoBehaviour {
 							} else {
 								spellableBlock.ApplySpell (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]), playerPos, getTile (players [otherPlayer].transform.position));
 							}
+						}
+					}
+					//PULL
+					else if (currentSpell [i].Equals(spell.PUSH) &&
+						otherPlayer != -1 &&
+						getSpellCombo(currentSpell[i], currentSpell[otherPlayer]).Equals(spell.PULL) &&
+						SpawnTiles.tileIsFree(spellPos)) {
+						Vector3 toMoveRight = spellPos + Vector3.left * 2;
+						Vector3 toMoveForward = spellPos + Vector3.forward * 2;
+						Vector3 toMoveLeft = spellPos + Vector3.left * 2;
+						if (SpawnTiles.tileExists (toMoveRight)) {
+							moveAnyObject (toMoveRight, spellPos);
+						} else if (SpawnTiles.tileExists (toMoveForward)) {
+							moveAnyObject (toMoveForward, spellPos);
+						} else if (SpawnTiles.tileExists (toMoveLeft)) {
+							moveAnyObject (toMoveLeft, spellPos);
 						}
 					}
 					//CREATE BLOCK/PUSHBLOCK
@@ -115,7 +133,9 @@ public class SpellManager : MonoBehaviour {
 								SpawnTiles.blocks.Remove (spellPos);
 							}
 							SpawnTiles.blocks.Add (spellPos, voidClone);
-						} else if (!SpawnTiles.tileExists (spellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_RAMP)) {
+						} else if (!SpawnTiles.tileExists (spellPos) &&
+						           !SpawnTiles.tileExists (new Vector3 (spellPos.x, spellPos.y - 2, spellPos.z)) &&
+						           getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_RAMP)) {
 							Vector3 dir = spellPos - players [i].pos;
 							GameObject rampClone = Instantiate (ramp, new Vector3 (spellPos.x, spellPos.y, spellPos.z),
 								                       Quaternion.LookRotation (dir));
@@ -126,10 +146,25 @@ public class SpellManager : MonoBehaviour {
 
 					//ADD ICE
 					else if (currentSpell [i].Equals (spell.CREATE_ICE)) {
-						if (otherPlayer == -1 && SpawnTiles.tileExists (spellPos)) {
+						//add ice
+						if (otherPlayer == -1 && SpawnTiles.tileExists (spellPos) &&
+						    SpawnTiles.blocks [spellPos].GetComponent<VoidManager> () == null &&
+						    SpawnTiles.blocks [spellPos].GetComponent<WaterManager> () == null) {
 							SpawnTiles.blocks [spellPos].AddComponent<IceManager> ();
 							SpawnTiles.blocks [spellPos].GetComponent<IceManager> ().updateMaterial ();
-						} else if (SpawnTiles.tileExists (spellPos)) {
+						} 
+						//ice above
+						else if (SpawnTiles.tileExists (aboveSpellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.ICE_ABOVE)) {
+							GameObject above = SpawnTiles.blocks [aboveSpellPos];
+							if (above.GetComponent<IceManager> () == null &&
+							    above.GetComponent<VoidManager> () == null &&
+							    above.GetComponent<WaterManager> () == null) {
+								above.AddComponent<IceManager> ();
+								above.GetComponent<IceManager> ().updateMaterial ();
+							}
+						}
+						//remove ice
+						else if (SpawnTiles.tileExists (spellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.REMOVE_ICE)) {
 							IceManager active = SpawnTiles.blocks [spellPos].GetComponent<IceManager> ();
 							if (active != null) {
 								active.applyPastMaterial ();
@@ -138,6 +173,35 @@ public class SpellManager : MonoBehaviour {
 						}
 					}
 
+					//Raise
+					else if (currentSpell [i].Equals (spell.RAISE)) {
+						//raise block
+						if (otherPlayer == -1 && SpawnTiles.tileExists (spellPos) && 
+							!SpawnTiles.tileExists (aboveSpellPos)) {
+							GameObject toMove = SpawnTiles.blocks [spellPos];
+							SpawnTiles.blocks.Remove (spellPos);
+							SpawnTiles.blocks.Add (aboveSpellPos, toMove);
+							toMove.transform.Translate (Vector3.up * 2);
+						}
+						//double raise
+						else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.DOUBLE_RAISE) &&
+							SpawnTiles.tileExists(spellPos) &&
+							!SpawnTiles.tileExists(new Vector3(spellPos.x, spellPos.y + 4, spellPos.z))) {
+							GameObject toMove = SpawnTiles.blocks [spellPos];
+							SpawnTiles.blocks.Remove (spellPos);
+							SpawnTiles.blocks.Add (new Vector3(spellPos.x, spellPos.y + 4, spellPos.z), toMove);
+							toMove.transform.Translate (Vector3.up * 4);
+						}
+						//raise push
+						else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.RAISE_PUSH) &&
+							SpawnTiles.tileExists(spellPos)) {
+							GameObject toMove = SpawnTiles.blocks [spellPos];
+							Vector3 upAndOver = aboveSpellPos - players [i].pos;;
+							SpawnTiles.blocks.Remove (spellPos);
+							SpawnTiles.blocks.Add (upAndOver, toMove);
+							toMove.transform.position = upAndOver;
+						}
+					}
 
 
 				} else if (spellProgress [i] >= 0) {
@@ -179,6 +243,16 @@ public class SpellManager : MonoBehaviour {
 				return spell.REMOVE_ICE;
 			}
 			break;
+		case spell.RAISE:
+			switch (spell2) {
+			case spell.CREATE_VOID:
+				return spell.LOWER;
+			case spell.RAISE:
+				return spell.DOUBLE_RAISE;
+			case spell.PUSH:
+				return spell.RAISE_PUSH;
+			}
+			break;
 		}
 		return switched ? spell.NO_EFFECT : getSpellCombo(spell2,spell1,true);
 	}
@@ -196,6 +270,15 @@ public class SpellManager : MonoBehaviour {
 			return 90;
 		} else {
 			return 270;
+		}
+	}
+
+	void moveAnyObject(Vector3 oldPos, Vector3 newPos){
+		if (SpawnTiles.tileExists(oldPos) && !SpawnTiles.tileExists(newPos)) {
+			GameObject toMove = SpawnTiles.blocks [oldPos];
+			SpawnTiles.blocks.Remove (oldPos);
+			SpawnTiles.blocks.Add (newPos, toMove);
+			toMove.transform.position = newPos;
 		}
 	}
 }

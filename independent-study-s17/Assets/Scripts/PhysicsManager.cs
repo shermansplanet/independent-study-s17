@@ -20,7 +20,7 @@ public class PhysicsManager : MonoBehaviour {
 			nextTime += tick;
 		}
 
-		//Move player if in water: NOTE: THIS TECHNOLOGY ISN'T READY
+		//Move player if in water
 		foreach (Player p in players) {
 			Vector3 currentTile = new Vector3 (
 				Mathf.Round (p.transform.position.x/2),
