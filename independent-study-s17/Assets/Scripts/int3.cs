@@ -14,6 +14,11 @@ public class int3{
 		this.y = clone.y;
 		this.z = clone.z;
 	}
+	public int3(Vector3 clone){
+		this.x = Mathf.RoundToInt(clone.x);
+		this.y = Mathf.RoundToInt(clone.y);
+		this.z = Mathf.RoundToInt(clone.z);
+	}
 	public Vector3 ToVector(){
 		return new Vector3 (x, y, z);
 	}

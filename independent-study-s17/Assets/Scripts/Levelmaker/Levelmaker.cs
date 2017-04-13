@@ -18,11 +18,14 @@ public class Levelmaker : MonoBehaviour {
 		public int3 position;
 		public byte direction;
 		public GameObject obj;
-		public blockData(block blockType, int3 position, byte direction, GameObject obj){
+		public int index = -1;
+
+		public blockData(block blockType, int3 position, byte direction, GameObject obj, int index = -1){
 			this.blockType = blockType;
 			this.position = position;
 			this.direction = direction;
 			this.obj = obj;
+			this.index = index;
 		}
 	}
 
@@ -49,6 +52,7 @@ public class Levelmaker : MonoBehaviour {
 
 	private bool placing = false;
 	private bool deleting = false;
+	private bool connecting = false;
 	private int3 selectionStart = new int3(0,0,0);
 	private Vector3 selectionEnd = new Vector3();
 	private Material indicatorMaterial;
@@ -57,6 +61,10 @@ public class Levelmaker : MonoBehaviour {
 	private Quaternion originalRotation;
 	private static Levelmaker instance;
 	private byte currentDirection;
+	private blockData currentDoor;
+	private GameObject currentButton = null;
+	private int buttonCount;
+	private LineRenderer line;
 
 	private static List<GameObject> spellLines = new List<GameObject>();
 	private static List<GameObject> levelLines = new List<GameObject>();
@@ -65,6 +73,8 @@ public class Levelmaker : MonoBehaviour {
 	readonly Vector3[] directions = new Vector3[]{Vector3.right,Vector3.up,Vector3.forward,Vector3.back,Vector3.down,Vector3.left};
 
 	void Start(){
+		line = GetComponent<LineRenderer> ();
+		line.enabled = false;
 		blocksInScene.Add (new int3 (0, 0, 0), new blockData (blocktypes [0], new int3 (0, 0, 0), 0, startCube));
 		startCube.GetComponent<Renderer> ().material.color = blocktypes [0].color;
 		indicatorMaterial = indicator.GetComponent<Renderer> ().material;
@@ -79,7 +89,7 @@ public class Levelmaker : MonoBehaviour {
 		string s = "";
 		for (int i = 0; i < blocktypes.Length; i++) {
 			block type = blocktypes [i];
-			string line = "<color=" + ToRGBHex (type.color) + ">" + (i + 1).ToString () + ". " + type.name + "</color>\n";
+			string line = "<color=" + ToRGBHex (type.color) + ">" + ((i+1)%10).ToString () + ". " + type.name + "</color>\n";
 			if (i == currentBlockType) {
 				line = "<b>" + line + "</b>";
 			}
@@ -151,7 +161,7 @@ public class Levelmaker : MonoBehaviour {
 
 		if (!saveInput.isFocused && !loadInput.isFocused) {
 			for (int i = 0; i < blocktypes.Length; i++) {
-				if (Input.GetKeyDown ((i + 1).ToString ())) {
+				if (Input.GetKeyDown (((i+1)%10).ToString ())) {
 					currentBlockType = i;
 					RefreshDisplay ();
 				}
@@ -181,6 +191,9 @@ public class Levelmaker : MonoBehaviour {
 				int blockCount = (int)Vector3.Distance (startVector, selectionEnd) / 2 + 1;
 				Vector3 dirVector = (selectionEnd - startVector).normalized * 2;
 				indicatorMaterial.SetTextureScale ("_MainTex", new Vector2 (1, 1));
+				if (blocktypes [currentBlockType].name == "door") {
+					blockCount = 1;
+				}
 				for (int i = 0; i < blockCount; i++) {
 					Vector3 pos = startVector + i * dirVector;
 					int3 intPos = getTile (pos);
@@ -188,7 +201,7 @@ public class Levelmaker : MonoBehaviour {
 						MakeBlock (intPos, blocktypes [currentBlockType], currentDirection);
 					}
 				}
-			}else if (deleting && !Input.GetMouseButton (1)) {
+			} else if (deleting && !Input.GetMouseButton (1)) {
 				deleting = false;
 				indicator.transform.localScale = Vector3.one * 2;
 				int blockCount = (int)Vector3.Distance (startVector, selectionEnd) / 2 + 1;
@@ -218,8 +231,47 @@ public class Levelmaker : MonoBehaviour {
 				selectionEnd = startVector + direction * stretch;
 				indicator.transform.localScale = Vector3.one * scaleFactor + scaleDirection * ((startVector - selectionEnd).magnitude);
 				indicator.transform.position = (startVector + selectionEnd) / 2;
-				float s = stretch/2 + 1;
+				float s = stretch / 2 + 1;
 				indicatorMaterial.SetTextureScale ("_MainTex", new Vector2 (s, s));
+			}
+		} else if(connecting){
+			Ray cameraRay = Camera.main.ScreenPointToRay (Input.mousePosition);
+			RaycastHit hit = new RaycastHit ();
+			Vector3 startPos = currentDoor.position.ToVector ();
+			Vector3 endPos = Vector3.zero;
+			GameObject prevButton = currentButton;
+			currentButton = null;
+			if (Physics.Raycast (cameraRay, out hit)) {
+				if (hit.collider.tag == "Button") {
+					currentButton = hit.collider.gameObject;
+					endPos = hit.collider.bounds.center;
+				} else {
+					endPos = hit.point;
+				}
+			} else {
+				endPos = cameraRay.GetPoint (Vector3.Distance (startPos, transform.position));
+			}
+
+			line.SetPosition (0, startPos);
+			line.SetPosition (1, endPos);
+
+			if (currentButton != null && prevButton == null) {
+				currentButton.GetComponent<Renderer> ().material.color = new Color (0.5f, 0.1f, 0.7f);
+			}
+			if (currentButton == null && prevButton != null) {
+				prevButton.GetComponent<Renderer> ().material.color = new Color (0.7f, 0.7f, 0.7f);
+			}
+
+			if (Input.GetMouseButton (0)) {
+				if (currentButton == null) {
+					blocksInScene.Remove (currentDoor.position);
+					Destroy (currentDoor.obj);
+				} else {
+					currentDoor.index = blocksInScene [new int3 (currentButton.transform.position)].index;
+					currentButton.GetComponent<Renderer> ().material.color = new Color (0.7f, 0.7f, 0.7f);
+				}
+				connecting = false;
+				line.enabled = false;
 			}
 		} else {
 			Ray cameraRay = Camera.main.ScreenPointToRay (Input.mousePosition);
@@ -258,12 +310,23 @@ public class Levelmaker : MonoBehaviour {
 			blockDirections [currentDirection].ToVector () * 0.66f;
 	}
 
-	private void MakeBlock(int3 pos, block type, byte dir){
+	private void MakeBlock(int3 pos, block type, byte dir, int index = -1){
 		GameObject blockInstance = Instantiate (type.model, pos.ToVector(), Quaternion.identity);
 		blockInstance.transform.rotation = Quaternion.LookRotation (blockDirections [dir].ToVector());
 		blockInstance.GetComponent<Renderer> ().material.color = type.color;
-		Instantiate (backCollider, pos.ToVector(), Quaternion.identity).transform.SetParent(blockInstance.transform);
-		blocksInScene.Add (pos, new blockData (type, pos, dir, blockInstance));
+		blockData instance = new blockData (type, pos, dir, blockInstance);
+		blocksInScene.Add (pos, instance);
+		if (type.name == "button") {
+			instance.index = buttonCount;
+			buttonCount++;
+		} else {
+			Instantiate (backCollider, pos.ToVector (), Quaternion.identity).transform.SetParent (blockInstance.transform);
+		}
+		if (type.name == "door") {
+			currentDoor = instance;
+			line.enabled = true;
+			connecting = true;
+		}
 	}
 
 	private int3 getTile(Vector3 pos){
@@ -293,7 +356,7 @@ public class Levelmaker : MonoBehaviour {
 				byte dir = item.Length < 5 ? (byte)0 : byte.Parse (item [4]);
 				foreach (block b in blocktypes) {
 					if (b.name == item [3]) {
-						MakeBlock (pos, b, dir);
+						MakeBlock (pos, b, dir,int.Parse(item[5]));
 						break;
 					}
 				}
@@ -318,12 +381,13 @@ public class Levelmaker : MonoBehaviour {
 		string s = "";
 		foreach (int3 pos in blocksInScene.Keys) {
 			blockData data = blocksInScene [pos];
-			s += string.Format ("{0},{1},{2},{3},{4}\n",
+			s += string.Format ("{0},{1},{2},{3},{4},{5}\n",
 				pos.x.ToString (),
 				pos.y.ToString (),
 				pos.z.ToString (),
 				data.blockType.name,
-				data.direction.ToString()
+				data.direction.ToString(),
+				data.index.ToString()
 			);
 		}
 		foreach (GameObject obj in spellLines) {
