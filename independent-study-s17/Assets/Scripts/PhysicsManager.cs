@@ -134,16 +134,16 @@ public class PhysicsManager : MonoBehaviour {
 	Vector3 getNextWater(WaterManager wtr) {
 		Vector3 next = new Vector3(0,0,0);
 		switch (wtr.getDirection()) {
-		case 0:
+		case 270:
 			next = new Vector3 (wtr.transform.position.x + 2, wtr.transform.position.y, wtr.transform.position.z);
 			break;
-		case 90:
+		case 180:
 			next = new Vector3 (wtr.transform.position.x, wtr.transform.position.y, wtr.transform.position.z - 2);
 			break;
-		case 180:
+		case 90:
 			next = new Vector3 (wtr.transform.position.x - 2, wtr.transform.position.y, wtr.transform.position.z);
 			break;
-		case 270:
+		case 0:
 			next = new Vector3 (wtr.transform.position.x, wtr.transform.position.y, wtr.transform.position.z + 2);
 			break;
 		}
@@ -153,16 +153,16 @@ public class PhysicsManager : MonoBehaviour {
 	Vector3 getNextWaterPush(int direction, Pushblock p) {
 		Vector3 next = new Vector3(0,0,0);
 		switch (direction) {
-		case 0:
+		case 270:
 			next = new Vector3 (p.transform.position.x + 2, p.transform.position.y, p.transform.position.z);
 			break;
-		case 90:
+		case 180:
 			next = new Vector3 (p.transform.position.x, p.transform.position.y, p.transform.position.z - 2);
 			break;
-		case 180:
+		case 90:
 			next = new Vector3 (p.transform.position.x - 2, p.transform.position.y, p.transform.position.z);
 			break;
-		case 270:
+		case 0:
 			next = new Vector3 (p.transform.position.x, p.transform.position.y, p.transform.position.z + 2);
 			break;
 		}

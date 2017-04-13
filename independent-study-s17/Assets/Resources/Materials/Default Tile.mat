@@ -127,10 +127,10 @@ Material:
       second: {r: 0, g: 0, b: 0, a: 1}
     - first:
         name: _xColor
-      second: {r: 0.72404844, g: 0.75932467, b: 0.7941176, a: 1}
+      second: {r: 0.39554498, g: 0.41481626, b: 0.43382353, a: 1}
     - first:
         name: _yColor
-      second: {r: 0.86764705, g: 0.86764705, b: 0.86764705, a: 1}
+      second: {r: 0.74264705, g: 0.74264705, b: 0.74264705, a: 1}
     - first:
         name: _zColor
       second: {r: 0.5330882, g: 0.5755578, b: 0.625, a: 1}

@@ -9,6 +9,7 @@ public class Player : MonoBehaviour {
 	public Transform selector;
 	public Vector3 pos;
 	public SpellDisplay spellDisplayObject;
+	public Vector3 prevOffset = Vector3.zero;
 
 	private int inventorySize = 3;
 

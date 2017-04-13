@@ -389,6 +389,8 @@ MonoBehaviour:
     prefab: {fileID: 1490158757803084, guid: da9e46cbe3304404fbc134cb3d844053, type: 2}
   - name: ramp
     prefab: {fileID: 1217338711563642, guid: ed523eede567c4f3fa8c42dd67c2b4cc, type: 2}
+  - name: water
+    prefab: {fileID: 1467663256672688, guid: b2c5e619485364afc946de80d0be4675, type: 2}
 --- !u!4 &553324668
 Transform:
   m_ObjectHideFlags: 0
@@ -1108,6 +1110,12 @@ Prefab:
       propertyPath: m_Name
       value: PhysicsManager
       objectReference: {fileID: 0}
+    - target: {fileID: 114432855195110378, guid: 92c5041f2288c45408e01a721b92b109,
+        type: 2}
+      propertyPath: waterBlock
+      value: 
+      objectReference: {fileID: 1467663256672688, guid: b2c5e619485364afc946de80d0be4675,
+        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 92c5041f2288c45408e01a721b92b109, type: 2}
   m_IsPrefabParent: 0

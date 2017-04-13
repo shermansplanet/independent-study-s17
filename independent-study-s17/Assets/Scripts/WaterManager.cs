@@ -34,4 +34,8 @@ public class WaterManager : MonoBehaviour {
 	public void changeDirection(int d) {
 		direction = d;
 	}
+
+	public void UpdateDirection(){
+		direction = ((int)transform.eulerAngles.y + 360) % 360;
+	}
 }

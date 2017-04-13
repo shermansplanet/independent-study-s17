@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Ice
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: c7fb0c28f20c84d2a9dc19dec5731b89, type: 3}
   m_ShaderKeywords: _EMISSION
   m_LightmapFlags: 1
   m_CustomRenderQueue: -1
@@ -125,3 +125,12 @@ Material:
     - first:
         name: _EmissionColor
       second: {r: 0, g: 0, b: 0, a: 1}
+    - first:
+        name: _xColor
+      second: {r: 0.5899654, g: 0.885133, b: 0.9117647, a: 1}
+    - first:
+        name: _yColor
+      second: {r: 0.8897059, g: 1, b: 0.98630834, a: 1}
+    - first:
+        name: _zColor
+      second: {r: 0.7028547, g: 0.94576126, b: 0.9558824, a: 1}

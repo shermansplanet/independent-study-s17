@@ -2195,11 +2195,17 @@ MonoBehaviour:
     color: {r: 0.547, g: 1, b: 0, a: 0}
     model: {fileID: 1379756730562872, guid: 195f226c9002d4844ac6266344283119, type: 2}
   - name: water
-    color: {r: 0, g: 0.75172424, b: 1, a: 0}
+    color: {r: 0, g: 0.5034485, b: 1, a: 0}
     model: {fileID: 1379756730562872, guid: 195f226c9002d4844ac6266344283119, type: 2}
   - name: ramp
     color: {r: 0.47058827, g: 0.47058827, b: 0.47058827, a: 0}
     model: {fileID: 1217338711563642, guid: cfc5a29b6e4bc41f8884825b5bdf477b, type: 2}
+  - name: ice_static
+    color: {r: 0.67128026, g: 0.9188402, b: 0.9411765, a: 0}
+    model: {fileID: 1379756730562872, guid: 195f226c9002d4844ac6266344283119, type: 2}
+  - name: ice_physics
+    color: {r: 0.3935986, g: 0.5721274, b: 0.58823526, a: 0}
+    model: {fileID: 1379756730562872, guid: 195f226c9002d4844ac6266344283119, type: 2}
   backCollider: {fileID: 1195550310856468, guid: 1717d7c511d904bf791f29a129b3fed6,
     type: 2}
   indicator: {fileID: 2104244990}

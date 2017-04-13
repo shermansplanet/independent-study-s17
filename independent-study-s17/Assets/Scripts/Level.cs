@@ -53,6 +53,8 @@ public class Level {
 		{"block",SpellManager.spell.CREATE_BLOCK}
 	};
 
+	private List<Block> iceBlocks;
+
 	public Level(string levelName){
 		string s = System.IO.File.ReadAllText(levelName);
 		Regex regex = new Regex ("([^/]+)\\.txt");
@@ -62,6 +64,7 @@ public class Level {
 		startBlocks = new List<int3> ();
 		endBlocks = new List<int3> ();
 		obj = new GameObject (name);
+		iceBlocks = new List<Block> ();
 
 		blocks = new List<Block> ();
 		spellPrereqs = new List<List<SpellManager.spell>> ();
@@ -86,6 +89,11 @@ public class Level {
 					int.Parse (item [1]),
 					int.Parse (item [2]));
 				BlockType type = WorldManager.blockTypes [0];
+				bool icy = false;
+				if (item [3].Substring (0, 4) == "ice_") {
+					item [3] = item [3].Substring (4);
+					icy = true;
+				}
 				foreach(BlockType t in WorldManager.blockTypes){
 					if (t.name == item [3]) {
 						type = t;
@@ -98,7 +106,11 @@ public class Level {
 					endBlocks.Add (pos);
 				}
 				byte dir = item.Length < 5 ? (byte)0 : byte.Parse (item [4]);
-				blocks.Add (new Block { pos = pos, type = type, dir = dir });
+				Block b = new Block { pos = pos, type = type, dir = dir };
+				blocks.Add (b);
+				if (icy) {
+					iceBlocks.Add (b);
+				}
 				min = int3.minBound (pos, min);
 				max = int3.maxBound (pos, max);
 			}
@@ -113,8 +125,12 @@ public class Level {
 			instance.transform.SetParent (obj.transform);
 			instance.transform.rotation = Quaternion.LookRotation (directions [b.dir].ToVector());
 			if (b.type.name == "ramp") {
-//				instance.GetComponent<RampBehaviour> ().dir = b.dir;
 				instance.GetComponent<RampBehaviour> ().upSlopeDirection = directions [b.dir].ToVector();
+			}else if (b.type.name == "water") {
+				instance.GetComponent<WaterManager> ().UpdateDirection ();
+			}
+			if (iceBlocks.Contains (b)) {
+				instance.AddComponent<IceManager> ().updateMaterial();
 			}
 		}
 	}

@@ -28,10 +28,14 @@ public class Move : MonoBehaviour {
 
 		Vector3 tileBelow = currentTile + Vector3.down * 2;
 
+		bool onIce = false;
+
 		if (ramp == null && SpawnTiles.tileExists(tileBelow)) {
 			ramp = SpawnTiles.blocks [tileBelow].GetComponent<RampBehaviour> ();
 			if (ramp != null) {
 				currentTile = tileBelow;
+			} else {
+				onIce = SpawnTiles.blocks [tileBelow].GetComponent<IceManager> () != null;
 			}
 		}
 
@@ -39,6 +43,10 @@ public class Move : MonoBehaviour {
 
 		if (positionOffset.magnitude > 0) {
 			p.transform.rotation = Quaternion.LookRotation (positionOffset);
+		}
+
+		if (onIce && p.prevOffset != Vector3.zero) {
+			positionOffset = p.prevOffset.normalized * speed * Time.deltaTime;
 		}
 
 		if (!SpawnTiles.tileExists (tileBelow)) {
@@ -79,9 +87,11 @@ public class Move : MonoBehaviour {
 			if (exceedingBoundaryX && exceedingBoundaryZ && !onEdge) {
 				positionOffset.x = 0;
 				positionOffset.z = 0;
+				onEdge = true;
 			}
 		}
 
+		p.prevOffset = onEdge ? Vector3.zero : positionOffset;
 
 		//acount for water
 		if (SpawnTiles.tileExists (currentTile) &&
