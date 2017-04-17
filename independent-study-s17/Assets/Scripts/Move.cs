@@ -6,9 +6,17 @@ public class Move : MonoBehaviour {
 
 	static readonly Vector3 UP = new Vector3(1,0,1).normalized;
 	static readonly Vector3 RIGHT = new Vector3(1,0,-1).normalized;
+
 	const float RADIUS = 0.5f;
 	const bool PLAYER_CAN_FALL = true;
 	static public float speed = 4;
+
+	static readonly Dictionary<int,Vector3> waterDirections = new Dictionary<int, Vector3>(){
+		{0,new Vector3(0,0,1)},
+		{90,new Vector3(1,0,0)},
+		{180,new Vector3(0,0,-1)},
+		{270,new Vector3(-1,0,0)}
+	};
 
 	public static void ObjectMove(string axisV, string axisH, Player p){
 
@@ -98,8 +106,8 @@ public class Move : MonoBehaviour {
 		if (SpawnTiles.tileExists (currentTile) &&
 		    SpawnTiles.blocks [SpawnTiles.roundVector (currentTile)].GetComponent<WaterManager> () != null) {
 
-			//WaterManager w = SpawnTiles.blocks [SpawnTiles.roundVector (currentTile)].GetComponent<WaterManager> ();
-			//waterOffset = waterDirection (w);
+			WaterManager w = SpawnTiles.blocks [SpawnTiles.roundVector (currentTile)].GetComponent<WaterManager> ();
+			waterOffset = waterDirections [w.getDirection ()] * Time.deltaTime * speed * 1.1f;
 		}
 
 		float rampOffset = ramp == null ? 0 : mul((positionWithinTile + ramp.upSlopeDirection * 0.5f), ramp.upSlopeDirection).magnitude * 0.5f;
