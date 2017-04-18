@@ -91,11 +91,11 @@ public class SpellManager : MonoBehaviour {
 						Vector3 toMoveRight = spellPos + Vector3.left * 2;
 						Vector3 toMoveForward = spellPos + Vector3.forward * 2;
 						Vector3 toMoveLeft = spellPos + Vector3.left * 2;
-						if (SpawnTiles.tileExists (toMoveRight)) {
+						if (SpawnTiles.tileExists (toMoveRight) && SpawnTiles.blocks[toMoveRight].GetComponent<Spellable>() != null) {
 							moveAnyObject (toMoveRight, spellPos);
-						} else if (SpawnTiles.tileExists (toMoveForward)) {
+						} else if (SpawnTiles.tileExists (toMoveForward) && SpawnTiles.blocks[toMoveForward].GetComponent<Spellable>() != null) {
 							moveAnyObject (toMoveForward, spellPos);
-						} else if (SpawnTiles.tileExists (toMoveLeft)) {
+						} else if (SpawnTiles.tileExists (toMoveLeft) && SpawnTiles.blocks[toMoveLeft].GetComponent<Spellable>() != null) {
 							moveAnyObject (toMoveLeft, spellPos);
 						}
 					}
@@ -138,9 +138,10 @@ public class SpellManager : MonoBehaviour {
 						} 
 						//create ramp
 						else if (!SpawnTiles.tileExists (spellPos) &&
-						         !SpawnTiles.tileExists (belowSpellPos) &&
+						         SpawnTiles.tileExists (belowSpellPos) &&
 						         getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_RAMP)) {
 							Vector3 dir = spellPos - players [i].pos;
+							Debug.Log ("Ramp building");
 							GameObject rampClone = Instantiate (ramp, spellPos, Quaternion.LookRotation (dir));
 							rampClone.GetComponent<RampBehaviour> ().upSlopeDirection = spellPos - players [i].pos;
 							SpawnTiles.blocks.Add (spellPos, rampClone);
@@ -242,6 +243,7 @@ public class SpellManager : MonoBehaviour {
 		case spell.CREATE_VOID:
 			switch (spell2) {
 			case spell.CREATE_BLOCK:
+				Debug.Log ("command ramp");
 				return spell.CREATE_RAMP;
 			case spell.CREATE_VOID:
 				return spell.CREATE_BLACKHOLE;

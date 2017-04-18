@@ -36,6 +36,7 @@ public class PhysicsManager : MonoBehaviour {
 
 	void simulatePhysics(){
 
+		//Find all Voidblocks - physics sometimes applies to things inside a void
 		List<VoidManager> voidblocks = new List<VoidManager>();
 
 		foreach (GameObject v in GameObject.FindGameObjectsWithTag("Void")) {
