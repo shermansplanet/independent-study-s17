@@ -8,7 +8,7 @@ public class Pushblock : Spellable {
 		switch(spellType){
 		case SpellManager.spell.PUSH:
 			Vector3 newPosition = SpawnTiles.roundVector (transform.position * 2 - casterPosition);
-			if (SpawnTiles.tileIsFree (newPosition)) {
+			if (SpawnTiles.tileIsFree (newPosition) || (SpawnTiles.tileExists(newPosition) && SpawnTiles.blocks[newPosition].GetComponent<WaterManager>() != null)) {
 				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (transform.position));
 				SpawnTiles.blocks.Add (newPosition, gameObject);
 				transform.position = newPosition;
