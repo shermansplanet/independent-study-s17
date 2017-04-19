@@ -23,6 +23,7 @@ public class Pushblock : Spellable {
 						this.gameObject.GetComponent<MeshRenderer> ().enabled = false;
 					}
 				}
+				SpawnTiles.blocks.Add (newPosition, gameObject);
 				transform.position = newPosition;
 			}
 			break;
