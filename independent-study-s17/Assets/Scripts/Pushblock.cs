@@ -11,19 +11,20 @@ public class Pushblock : Spellable {
 			if (SpawnTiles.tileIsFree (newPosition) || (SpawnTiles.tileExists(newPosition) && SpawnTiles.blocks[newPosition].GetComponent<WaterManager>() != null) ||
 				(SpawnTiles.tileExists(newPosition) && SpawnTiles.blocks[newPosition].GetComponent<VoidManager>() != null)) {
 				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (transform.position));
-				if (SpawnTiles.tileExists(newPosition)) {
+				if (SpawnTiles.tileExists (newPosition)) {
 					if (SpawnTiles.blocks [newPosition].GetComponent<WaterManager> () != null) {
 						Destroy (SpawnTiles.blocks [newPosition]);
 						SpawnTiles.blocks.Remove (newPosition);
 						SpawnTiles.blocks.Add (newPosition, gameObject);
 					} else {
 						//must be a void block
-						VoidManager v = SpawnTiles.blocks[newPosition].GetComponent<VoidManager>();
+						VoidManager v = SpawnTiles.blocks [newPosition].GetComponent<VoidManager> ();
 						v.addObject (gameObject);
 						this.gameObject.GetComponent<MeshRenderer> ().enabled = false;
 					}
+				} else {
+					SpawnTiles.blocks.Add (newPosition, gameObject);
 				}
-				SpawnTiles.blocks.Add (newPosition, gameObject);
 				transform.position = newPosition;
 			}
 			break;
@@ -39,15 +40,19 @@ public class Pushblock : Spellable {
 					if (SpawnTiles.tileIsFree (newPosition) || (SpawnTiles.tileExists(newPosition) && SpawnTiles.blocks[newPosition].GetComponent<WaterManager>() != null) ||
 						(SpawnTiles.tileExists(newPosition) && SpawnTiles.blocks[newPosition].GetComponent<VoidManager>() != null)) {
 						//pushing into water block
-						if (SpawnTiles.blocks [newPosition].GetComponent<WaterManager> () != null) {
-							Destroy (SpawnTiles.blocks [newPosition]);
-							SpawnTiles.blocks.Remove (newPosition);
-							SpawnTiles.blocks.Add (newPosition, gameObject);
+						if (SpawnTiles.tileExists (newPosition)) {
+							if (SpawnTiles.blocks [newPosition].GetComponent<WaterManager> () != null) {
+								Destroy (SpawnTiles.blocks [newPosition]);
+								SpawnTiles.blocks.Remove (newPosition);
+								SpawnTiles.blocks.Add (newPosition, gameObject);
+							} else {
+								//must be a void block
+								VoidManager v = SpawnTiles.blocks [newPosition].GetComponent<VoidManager> ();
+								v.addObject (gameObject);
+								this.gameObject.GetComponent<MeshRenderer> ().enabled = false;
+							}
 						} else {
-							//must be a void block
-							VoidManager v = SpawnTiles.blocks[newPosition].GetComponent<VoidManager>();
-							v.addObject (gameObject);
-							this.gameObject.GetComponent<MeshRenderer> ().enabled = false;
+							SpawnTiles.blocks.Add (newPosition, gameObject);
 						}
 						transform.position = newPosition;
 					} else {
