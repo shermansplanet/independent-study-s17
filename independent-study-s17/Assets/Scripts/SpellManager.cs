@@ -81,6 +81,8 @@ public class SpellManager : MonoBehaviour {
 							} else {
 								spellableBlock.ApplySpell (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]), playerPos, getTile (players [otherPlayer].transform.position));
 							}
+							//in case it was inside a void 
+							spellableBlock.gameObject.GetComponent<MeshRenderer> ().enabled = true;
 						}
 					}
 					//PULL
