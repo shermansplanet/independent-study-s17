@@ -58,7 +58,7 @@ public class PhysicsManager : MonoBehaviour {
 			Vector3 below = new Vector3 (p.transform.position.x, p.transform.position.y - 2, p.transform.position.z);
 			if (!SpawnTiles.tileExists (below)) {
 				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (p.transform.position));
-				p.transform.Translate(Vector3.down*2);
+				p.transform.position = below;
 				SpawnTiles.blocks.Add (below, p.gameObject);
 			}
 			if (p.transform.position.y < killPlane) {
