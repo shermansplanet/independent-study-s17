@@ -20,8 +20,8 @@ public class Player : MonoBehaviour {
 		SpellManager.spell.PUSH,
 		SpellManager.spell.CREATE_BLOCK,
 		SpellManager.spell.CREATE_VOID,
-		SpellManager.spell.CREATE_ICE,
-		SpellManager.spell.RAISE
+		/*SpellManager.spell.CREATE_ICE,
+		SpellManager.spell.RAISE*/
 	};
 
 	public SpellManager.spell getCurrentSpell () {

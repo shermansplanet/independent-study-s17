@@ -43,6 +43,8 @@ public class Level {
 	public int3 position;
 	public int3 min;
 	public int3 max;
+	public int3 visualMin;
+	public int3 visualMax;
 	public string name;
 	public List<Level> nextLevels;
 	public List<int3> startBlocks;
@@ -51,7 +53,8 @@ public class Level {
 
 	private static Dictionary<string,SpellManager.spell> toEnum = new Dictionary<string, SpellManager.spell>(){
 		{"push",SpellManager.spell.PUSH},
-		{"block",SpellManager.spell.CREATE_BLOCK}
+		{"block",SpellManager.spell.CREATE_BLOCK},
+		{"void",SpellManager.spell.CREATE_VOID}
 	};
 
 	private List<Block> iceBlocks;
@@ -127,6 +130,14 @@ public class Level {
 				max = int3.maxBound (pos, max);
 			}
 		}
+
+		visualMax = new int3(max);
+		visualMax.x += Mathf.RoundToInt (max.y * 5f / 7f);
+		visualMax.z += Mathf.RoundToInt (max.y * 5f / 7f);
+		visualMin = new int3(min);
+		visualMin.x += Mathf.RoundToInt (min.y * 5f / 7f);
+		visualMin.z += Mathf.RoundToInt (min.y * 5f / 7f);
+
 	}
 
 	private void SpawnNewBlock(Block b, Vector3 pos){
@@ -207,19 +218,27 @@ public class Level {
 		int3 blockMax = new int3(pos);
 		if (pos.x == max.x) {
 			blockList.Add (new LiminalBlock{ pos = pos, dir = 0 });
-			blockMax.x += LEVEL_BORDER * 2;
+			while (blockMax.x < visualMax.x + LEVEL_BORDER) {
+				blockMax.x += 2;
+			}
 		}
 		if (pos.z == max.z) {
 			blockList.Add (new LiminalBlock{ pos = pos, dir = 1 });
-			blockMax.z += LEVEL_BORDER * 2;
+			while (blockMax.z < visualMax.z + LEVEL_BORDER) {
+				blockMax.z += 2;
+			}
 		}
 		if (pos.x == min.x) {
 			blockList.Add (new LiminalBlock{ pos = pos, dir = 2 });
-			blockMin.x -= LEVEL_BORDER * 2;
+			while (blockMin.x > visualMin.x - LEVEL_BORDER) {
+				blockMin.x -= 2;
+			}
 		}
 		if (pos.z == min.z) {
 			blockList.Add (new LiminalBlock{ pos = pos, dir = 3 });
-			blockMin.z -= LEVEL_BORDER * 2;
+			while (blockMin.z > visualMin.z - LEVEL_BORDER) {
+				blockMin.z -= 2;
+			}
 		}
 		for (int x = blockMin.x; x <= blockMax.x; x+=2) {
 			for (int z = blockMin.z; z <= blockMax.z; z+=2) {
@@ -384,7 +403,7 @@ public class Level {
 
 			List<int3> extraBlocks = Chain (new List<int3> (), parents, currentSquare);
 
-			if (!WorldManager.regionIntersect (currentSquare - entrancePosition, nextLevel.min, nextLevel.max, LEVEL_BORDER * 2,extraBlocks)) {
+			if (!WorldManager.regionIntersect (currentSquare - entrancePosition, nextLevel.min, nextLevel.max, nextLevel.visualMin, nextLevel.visualMax, LEVEL_BORDER * 2,extraBlocks)) {
 				successBlock = currentSquare;
 				break;
 			}

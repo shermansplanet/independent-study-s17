@@ -1,0 +1,14 @@
+0,0,0,static,0,-1
+0,0,-2,spawn,1,-1
+0,2,0,ramp,1,-1
+-2,0,0,static,1,-1
+0,2,2,static,1,-1
+-2,0,2,static,1,-1
+-2,0,-2,spawn,1,-1
+-2,0,4,static,1,-1
+-2,0,6,static,1,-1
+0,0,6,static,1,-1
+0,2,6,goal,1,-1
+0,0,4,static,1,-1
+-2,2,6,goal,1,-1
+spells,block

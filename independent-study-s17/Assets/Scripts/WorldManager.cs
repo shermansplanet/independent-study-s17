@@ -29,6 +29,9 @@ public class WorldManager : MonoBehaviour {
 
 		List<Level> levelsAdded = new List<Level> ();
 		List<SpellManager.spell> spellsLearned = new List<SpellManager.spell> (); 
+		spellsLearned.Add (SpellManager.spell.CREATE_BLOCK);
+		spellsLearned.Add (SpellManager.spell.PUSH);
+		spellsLearned.Add (SpellManager.spell.CREATE_VOID);
 
 		List<Level> possibleLevels = new List<Level> ();
 
@@ -98,12 +101,17 @@ public class WorldManager : MonoBehaviour {
 		if (toIgnore != null && ignoreLevels==null && toIgnore.Contains (pos)) {
 			return false;
 		}
+
+		int3 visualPos = new int3 (pos);
+		visualPos.x += Mathf.RoundToInt (pos.y * 5f / 7f);
+		visualPos.z += Mathf.RoundToInt (pos.y * 5f / 7f);
+
 		foreach (Level l in levelsSpawned) {
 			if (
-				(pos.x >= l.min.x + l.position.x - buffer) &&
-				(pos.x <= l.max.x + l.position.x + buffer) &&
-				(pos.z >= l.min.z + l.position.z - buffer) &&
-				(pos.z <= l.max.z + l.position.z + buffer)
+				(visualPos.x >= l.visualMin.x + l.position.x - buffer) &&
+				(visualPos.x <= l.visualMax.x + l.position.x + buffer) &&
+				(visualPos.z >= l.visualMin.z + l.position.z - buffer) &&
+				(visualPos.z <= l.visualMax.z + l.position.z + buffer)
 			) {
 				if(!(ignoreLevels!= null && ignoreLevels.Contains(l)) || !(toIgnore!= null && toIgnore.Contains(pos))){
 					return true;
@@ -116,13 +124,13 @@ public class WorldManager : MonoBehaviour {
 		return liminalBlocks.Contains (pos);
 	}
 
-	public static bool regionIntersect(int3 pos, int3 min, int3 max, int buffer = 4, List<int3> extraBlocks = null){
+	public static bool regionIntersect(int3 pos, int3 min, int3 max, int3 visualMin, int3 visualMax, int buffer = 4, List<int3> extraBlocks = null){
 		foreach (Level l in levelsSpawned) {
 			if (
-				(pos.x + max.x >= l.min.x + l.position.x - buffer) &&
-				(pos.x + min.x <= l.max.x + l.position.x + buffer) &&
-				(pos.z + max.z >= l.min.z + l.position.z - buffer) &&
-				(pos.z + min.z <= l.max.z + l.position.z + buffer)
+				(pos.x + visualMax.x >= l.visualMin.x + l.position.x - buffer) &&
+				(pos.x + visualMin.x <= l.visualMax.x + l.position.x + buffer) &&
+				(pos.z + visualMax.z >= l.visualMin.z + l.position.z - buffer) &&
+				(pos.z + visualMin.z <= l.visualMax.z + l.position.z + buffer)
 			) {
 				return true;
 			}
