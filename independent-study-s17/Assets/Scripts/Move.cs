@@ -57,14 +57,14 @@ public class Move : MonoBehaviour {
 			positionOffset = p.prevOffset.normalized * speed * Time.deltaTime;
 		}
 
-		if (!SpawnTiles.tileExists (tileBelow)) {
+		Vector3 positionWithinTile = p.transform.position + positionOffset - currentTile;
+
+		if (!SpawnTiles.tileExists (tileBelow) || (ramp==null && positionWithinTile.y > 0)) {
 			positionOffset = Vector3.down * Time.deltaTime * 6;
 		}
 
 		int normalizedX = positionOffset.x > 0 ? 2 : -2;
 		int normalizedZ = positionOffset.z > 0 ? 2 : -2;
-
-		Vector3 positionWithinTile = p.transform.position + positionOffset - currentTile;
 
 		if (positionOffset.magnitude > 0) {
 			float distX = Mathf.Abs (normalizedX - positionWithinTile.x * 2) / Mathf.Abs (positionOffset.x);
@@ -122,7 +122,7 @@ public class Move : MonoBehaviour {
 		p.transform.position = newPosition;
 
 		if (p.transform.position.y < -10) {
-			p.transform.position = new Vector3 (0, 2, 0);
+			p.Respawn ();
 		}
 	}
 

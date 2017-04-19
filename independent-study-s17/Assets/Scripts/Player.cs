@@ -10,6 +10,8 @@ public class Player : MonoBehaviour {
 	public Vector3 pos;
 	public SpellDisplay spellDisplayObject;
 	public Vector3 prevOffset = Vector3.zero;
+	public Level currentLevel;
+	public Player otherPlayer;
 
 	private int inventorySize = 3;
 
@@ -23,6 +25,25 @@ public class Player : MonoBehaviour {
 		/*SpellManager.spell.CREATE_ICE,
 		SpellManager.spell.RAISE*/
 	};
+
+	public void Respawn(){
+		Level otherLevel = otherPlayer.currentLevel;
+		Debug.Log (otherLevel.name);
+		transform.position = (otherLevel.position + otherLevel.startBlocks [Random.Range (0,otherLevel.startBlocks.Count)]).ToVector() + Vector3.up * 2;
+	}
+
+	public void UpdateLevel(){
+		foreach (Level l in WorldManager.levelsSpawned) {
+			if (
+				transform.position.x < l.position.x + l.max.x &&
+				transform.position.x > l.position.x + l.min.x &&
+				transform.position.z < l.position.z + l.max.z &&
+				transform.position.z > l.position.z + l.min.z) {
+				currentLevel = l;
+				break;
+			}
+		}
+	}
 
 	public SpellManager.spell getCurrentSpell () {
 		return currentSpell;

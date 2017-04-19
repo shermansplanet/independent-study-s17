@@ -10,6 +10,8 @@ public class PlayerManager : MonoBehaviour {
 
 	void Start(){
 		staticPlayers = players;
+		players [0].otherPlayer = players [1];
+		players [1].otherPlayer = players [0];
 	}
 
 	void Update () {
@@ -17,17 +19,7 @@ public class PlayerManager : MonoBehaviour {
 
 			Move.ObjectMove ("Vertical" + i.ToString (), "Horizontal" + i.ToString (), players [i]);
 
-			/*Vector3 below = SpawnTiles.round2Vector (players[i].transform.position) + Vector3.down * 2;
-			Debug.Log (below);
-			//Debug.Log (SpawnTiles.blocks [below].GetComponent<IceManager> ());
-			if (SpawnTiles.tileExists (below) && SpawnTiles.blocks [below].GetComponent<IceManager> () == null) {
-				Move.ObjectMove ("Vertical" + i.ToString (), "Horizontal" + i.ToString (), players [i]);
-			} else if (SpawnTiles.tileExists (below)) {
-				Move.IceMove (players [i]);
-			} else {
-				//falling could go here
-				break;
-			}*/
+			players [i].UpdateLevel ();
 
 			if (Input.GetButtonDown ("RotateSpell" + i.ToString())) {
 				players [i].rotateSpell();
