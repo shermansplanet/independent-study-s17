@@ -10,6 +10,10 @@ public class Pushblock : Spellable {
 			Vector3 newPosition = SpawnTiles.roundVector (transform.position * 2 - casterPosition);
 			if (SpawnTiles.tileIsFree (newPosition) || (SpawnTiles.tileExists(newPosition) && SpawnTiles.blocks[newPosition].GetComponent<WaterManager>() != null)) {
 				SpawnTiles.blocks.Remove (SpawnTiles.roundVector (transform.position));
+				if (SpawnTiles.tileExists(newPosition)) {
+					Destroy (SpawnTiles.blocks [newPosition]);
+					SpawnTiles.blocks.Remove(newPosition);
+				}
 				SpawnTiles.blocks.Add (newPosition, gameObject);
 				transform.position = newPosition;
 			}
@@ -23,7 +27,11 @@ public class Pushblock : Spellable {
 				newPosition = SpawnTiles.roundVector (transform.position * 3 - casterPosition * 2);
 				if (SpawnTiles.tileIsFree (midPosition)) {
 					SpawnTiles.blocks.Remove (SpawnTiles.roundVector (transform.position));
-					if (SpawnTiles.tileIsFree (newPosition)) {
+					if (SpawnTiles.tileIsFree (newPosition) || (SpawnTiles.tileExists(newPosition) && SpawnTiles.blocks[newPosition].GetComponent<WaterManager>() != null)) {
+						if (SpawnTiles.tileExists(newPosition)) {
+							Destroy (SpawnTiles.blocks [newPosition]);
+							SpawnTiles.blocks.Remove(newPosition);
+						}
 						SpawnTiles.blocks.Add (newPosition, gameObject);
 						transform.position = newPosition;
 					} else {
