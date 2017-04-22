@@ -163,13 +163,13 @@ public class PhysicsManager : MonoBehaviour {
 		Vector3 next = new Vector3(0,0,0);
 		switch (wtr.getDirection()) {
 		case 270:
-			next = new Vector3 (wtr.transform.position.x + 2, wtr.transform.position.y, wtr.transform.position.z);
+			next = new Vector3 (wtr.transform.position.x - 2, wtr.transform.position.y, wtr.transform.position.z);
 			break;
 		case 180:
 			next = new Vector3 (wtr.transform.position.x, wtr.transform.position.y, wtr.transform.position.z - 2);
 			break;
 		case 90:
-			next = new Vector3 (wtr.transform.position.x - 2, wtr.transform.position.y, wtr.transform.position.z);
+			next = new Vector3 (wtr.transform.position.x + 2, wtr.transform.position.y, wtr.transform.position.z);
 			break;
 		case 0:
 			next = new Vector3 (wtr.transform.position.x, wtr.transform.position.y, wtr.transform.position.z + 2);

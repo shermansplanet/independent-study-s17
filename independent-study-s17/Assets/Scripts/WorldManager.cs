@@ -18,7 +18,7 @@ public class WorldManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-		//Random.InitState (0);
+		//Random.InitState (7);
 		levelsSpawned = new List<Level> ();
 		liminalBlocks = new List<int3> ();
 		SpawnTiles.blocks = new Dictionary<Vector3, GameObject> ();

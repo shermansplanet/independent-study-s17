@@ -43,7 +43,7 @@ public class Move : MonoBehaviour {
 			if (ramp != null) {
 				currentTile = tileBelow;
 			} else {
-				onIce = SpawnTiles.blocks [tileBelow].GetComponent<IceManager> () != null;
+				onIce = SpawnTiles.blocks [tileBelow].GetComponent<IceManager> () != null && (p.prevOffset.x!=0 || p.prevOffset.z!=0);
 			}
 		}
 
@@ -59,7 +59,9 @@ public class Move : MonoBehaviour {
 
 		Vector3 positionWithinTile = p.transform.position + positionOffset - currentTile;
 
-		if (!SpawnTiles.tileExists (tileBelow) || (ramp==null && positionWithinTile.y > 0)) {
+		if (!SpawnTiles.tileExists (tileBelow) || (ramp==null && positionWithinTile.y > 0) ||
+			SpawnTiles.blocks[tileBelow].GetComponent<VoidManager>()!=null ||
+			SpawnTiles.blocks[tileBelow].GetComponent<WaterManager>()!=null) {
 			positionOffset = Vector3.down * Time.deltaTime * 6;
 		}
 

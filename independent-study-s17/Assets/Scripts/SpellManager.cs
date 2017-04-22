@@ -40,6 +40,9 @@ public class SpellManager : MonoBehaviour {
 	}
 
 	void Update () {
+		if(Input.GetButtonDown("Spell0")){
+			Debug.Log ("SPELL0PRESS");
+		}
 		for (int i = 0; i < players.Length; i++) {
 			//uncomment line below to make use of player inventory 
 			currentSpell [i] = players [i].getCurrentSpell ();
@@ -245,7 +248,6 @@ public class SpellManager : MonoBehaviour {
 		case spell.CREATE_VOID:
 			switch (spell2) {
 			case spell.CREATE_BLOCK:
-				Debug.Log ("command ramp");
 				return spell.CREATE_RAMP;
 			case spell.CREATE_VOID:
 				return spell.CREATE_BLACKHOLE;
