@@ -13,16 +13,16 @@ public class Player : MonoBehaviour {
 	public Level currentLevel;
 	public Player otherPlayer;
 
-	private int inventorySize = 3;
+	private int inventorySize = 5;
 
 	private SpellManager.spell currentSpell = SpellManager.spell.PUSH;
 
 	//set default spells 
 	private List<SpellManager.spell> spellInventory = new List<SpellManager.spell> {
 		SpellManager.spell.PUSH,
-		SpellManager.spell.CREATE_BLOCK,
+		/*SpellManager.spell.CREATE_BLOCK,
 		SpellManager.spell.CREATE_VOID,
-		/*SpellManager.spell.CREATE_ICE,
+		SpellManager.spell.CREATE_ICE,
 		SpellManager.spell.RAISE*/
 	};
 

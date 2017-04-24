@@ -40,9 +40,6 @@ public class SpellManager : MonoBehaviour {
 	}
 
 	void Update () {
-		if(Input.GetButtonDown("Spell0")){
-			Debug.Log ("SPELL0PRESS");
-		}
 		for (int i = 0; i < players.Length; i++) {
 			//uncomment line below to make use of player inventory 
 			currentSpell [i] = players [i].getCurrentSpell ();

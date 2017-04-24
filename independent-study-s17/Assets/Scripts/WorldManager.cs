@@ -8,6 +8,7 @@ public class WorldManager : MonoBehaviour {
 	public static BlockType[] blockTypes;
 	public BlockType[] publicBlockTypes;
 	public Level[] levelPool;
+	public GameObject spellPickup;
 
 	const int MIN_PATHS = 1;
 	const int MAX_PATHS = 3;
@@ -16,9 +17,12 @@ public class WorldManager : MonoBehaviour {
 	public static List<Level> levelsSpawned;
 	public static Queue<Level> levelsToSpawn;
 
+	public static WorldManager instance;
+
 	// Use this for initialization
 	void Awake () {
 		//Random.InitState (7);
+		instance = this;
 		levelsSpawned = new List<Level> ();
 		liminalBlocks = new List<int3> ();
 		SpawnTiles.blocks = new Dictionary<Vector3, GameObject> ();
@@ -28,10 +32,18 @@ public class WorldManager : MonoBehaviour {
 		levelPool = new Level[files.Length];
 
 		List<Level> levelsAdded = new List<Level> ();
-		List<SpellManager.spell> spellsLearned = new List<SpellManager.spell> (); 
-		spellsLearned.Add (SpellManager.spell.CREATE_BLOCK);
-		spellsLearned.Add (SpellManager.spell.PUSH);
-		spellsLearned.Add (SpellManager.spell.CREATE_VOID);
+
+		List<SpellManager.spell> spellsLearned = new List<SpellManager.spell>{
+			SpellManager.spell.PUSH,
+			SpellManager.spell.PUSH
+		};
+
+		List<SpellManager.spell> spellsToLearn = new List<SpellManager.spell>{
+			SpellManager.spell.CREATE_BLOCK,
+			SpellManager.spell.CREATE_VOID,
+			SpellManager.spell.CREATE_BLOCK,
+			SpellManager.spell.CREATE_VOID,
+		};
 
 		List<Level> possibleLevels = new List<Level> ();
 
@@ -46,29 +58,39 @@ public class WorldManager : MonoBehaviour {
 		List<Level> openLevelExits = new List<Level> ();
 		Level firstLevel = null;
 
-		while(possibleLevels.Count > 0){
-			Level l = possibleLevels [Random.Range (0, possibleLevels.Count)];
-			possibleLevels.Remove (l);
+		while (spellsToLearn.Count > 0) {
+			while (possibleLevels.Count > 0) {
+				Level l = possibleLevels [Random.Range (0, possibleLevels.Count)];
+				possibleLevels.Remove (l);
 
-			if (openLevelExits.Count == 0) {
-				firstLevel = l;
-			} else {
-				Level parent = openLevelExits [Random.Range (0, openLevelExits.Count)];
-				parent.nextLevels.Add (l);
-				openLevelExits.Remove (parent);
-			}
+				if (openLevelExits.Count == 0) {
+					firstLevel = l;
+				} else {
+					Level parent = openLevelExits [Random.Range (0, openLevelExits.Count)];
+					parent.nextLevels.Add (l);
+					openLevelExits.Remove (parent);
+				}
 
-			levelsAdded.Add (l);
-			int paths = Random.Range (MIN_PATHS, MAX_PATHS + 1);
-			for (int i = 0; i < paths; i++) {
-				openLevelExits.Add (l);
-			}
+				levelsAdded.Add (l);
+				int paths = Random.Range (MIN_PATHS, MAX_PATHS + 1);
+				for (int i = 0; i < paths; i++) {
+					openLevelExits.Add (l);
+				}
 
-			foreach (Level possibleLevel in levelPool) {
-				if (possibleLevel.canSpawn (spellsLearned, levelsAdded) && !levelsAdded.Contains(possibleLevel) && !possibleLevels.Contains(possibleLevel)) {
-					possibleLevels.Add (possibleLevel);
+				foreach (Level possibleLevel in levelPool) {
+					if (possibleLevel.canSpawn (spellsLearned, levelsAdded) && !levelsAdded.Contains (possibleLevel) && !possibleLevels.Contains (possibleLevel)) {
+						possibleLevels.Add (possibleLevel);
+					}
 				}
 			}
+			SpellManager.spell spell = spellsToLearn [0];
+			spellsToLearn.RemoveAt (0);
+			spellsLearned.Add (spell);
+			Level rewardPlace = openLevelExits [Random.Range (0, openLevelExits.Count)];
+			while (rewardPlace.spellReward != SpellManager.spell.NO_EFFECT) {
+				rewardPlace = openLevelExits [Random.Range (0, openLevelExits.Count)];
+			}
+			rewardPlace.spellReward = spell;
 		}
 
 		/*foreach (Level l1 in levelsAdded) {

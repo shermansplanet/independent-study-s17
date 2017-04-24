@@ -50,6 +50,7 @@ public class Level {
 	public List<int3> startBlocks;
 	public List<int3> endBlocks;
 	public GameObject obj;
+	public SpellManager.spell spellReward;
 
 	private static Dictionary<string,SpellManager.spell> toEnum = new Dictionary<string, SpellManager.spell>(){
 		{"push",SpellManager.spell.PUSH},
@@ -65,6 +66,7 @@ public class Level {
 		string s = System.IO.File.ReadAllText(levelName);
 		Regex regex = new Regex ("([^/]+)\\.txt");
 		Match mc = regex.Match (levelName);
+		spellReward = SpellManager.spell.NO_EFFECT;
 		name = mc.Groups[1].Value;
 		nextLevels = new List<Level> ();
 		startBlocks = new List<int3> ();
@@ -173,14 +175,21 @@ public class Level {
 		foreach (Block b in doors.Keys) {
 			buttons [doors [b]].spawnedBlock.GetComponent<ButtonBehaviour> ().doors.Add (b.spawnedBlock.GetComponent<DoorBehaviour> ());
 		}
+		if (spellReward != SpellManager.spell.NO_EFFECT) {
+			Vector3 pos = (position + endBlocks [Random.Range (0, endBlocks.Count)] + new int3(0,2,0)).ToVector();
+			GameObject.Instantiate (WorldManager.instance.spellPickup, pos, Quaternion.identity).GetComponent<SpellPickupBehaviour> ().spell = spellReward;
+		}
 	}
 
 	public bool canSpawn(List<SpellManager.spell> knownSpells, List<Level> levelsSpawned){
+		List<SpellManager.spell> localKnownSpells = new List<SpellManager.spell> (knownSpells);
 		bool hasNecessarySpells = true;
 		foreach (List<SpellManager.spell> andList in spellPrereqs) {
 			hasNecessarySpells = true;
 			foreach (SpellManager.spell spell in andList) {
-				if (!knownSpells.Contains (spell)) {
+				if (localKnownSpells.Contains (spell)) {
+					localKnownSpells.Remove (spell);
+				}else{
 					hasNecessarySpells = false;
 					break;
 				}

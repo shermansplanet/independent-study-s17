@@ -20,12 +20,12 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  m_AmbientSkyColor: {r: 0, g: 0, b: 0, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 0.74
-  m_AmbientMode: 0
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_AmbientMode: 3
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311918, g: 0.3807398, b: 0.35872716, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -49,9 +49,9 @@ LightmapSettings:
     m_IndirectOutputScale: 1
     m_AlbedoBoost: 1
     m_TemporalCoherenceThreshold: 1
-    m_EnvironmentLightingMode: 0
-    m_EnableBakedLightmaps: 1
-    m_EnableRealtimeLightmaps: 1
+    m_EnvironmentLightingMode: 1
+    m_EnableBakedLightmaps: 0
+    m_EnableRealtimeLightmaps: 0
   m_LightmapEditorSettings:
     serializedVersion: 4
     m_Resolution: 2
@@ -315,30 +315,11 @@ Prefab:
       propertyPath: selector
       value: 
       objectReference: {fileID: 527551459}
-    - target: {fileID: 1554176075295304, guid: 893aac0d4347b76419e0e8ff7fea65ad, type: 2}
-      propertyPath: m_Name
-      value: Player1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114335516907029326, guid: 893aac0d4347b76419e0e8ff7fea65ad,
-        type: 2}
-      propertyPath: spellDisplay
-      value: 
-      objectReference: {fileID: 128376800}
     - target: {fileID: 114335516907029326, guid: 893aac0d4347b76419e0e8ff7fea65ad,
         type: 2}
       propertyPath: spellDisplayObject
       value: 
       objectReference: {fileID: 128376802}
-    - target: {fileID: 23369846107800926, guid: 893aac0d4347b76419e0e8ff7fea65ad,
-        type: 2}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: f86eb227e483140d29ff3a1855be9b6e, type: 2}
-    - target: {fileID: 23919490715080296, guid: 893aac0d4347b76419e0e8ff7fea65ad,
-        type: 2}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: f86eb227e483140d29ff3a1855be9b6e, type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 893aac0d4347b76419e0e8ff7fea65ad, type: 2}
   m_IsPrefabParent: 0
@@ -395,6 +376,8 @@ MonoBehaviour:
     prefab: {fileID: 1969607795005678, guid: a78ea5e21daac485489035cbfbd885b9, type: 2}
   - name: door
     prefab: {fileID: 1871003359801230, guid: e738e7a9f9b5f44e7b1eb3044b905776, type: 2}
+  spellPickup: {fileID: 1901835834164552, guid: c4d6c3028335c4c9eb79c85e23d92f06,
+    type: 2}
 --- !u!4 &553324668
 Transform:
   m_ObjectHideFlags: 0
@@ -423,6 +406,24 @@ MonoBehaviour:
   baseTilePrefab: []
   cloneSpawn: []
   debug: 0
+--- !u!1 &713333081 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1914461468795944, guid: 4276b0f6850bded4382a63e41fe48cbe,
+    type: 2}
+  m_PrefabInternal: {fileID: 289833798}
+--- !u!136 &713333082
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 713333081}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &768774627
 GameObject:
   m_ObjectHideFlags: 0

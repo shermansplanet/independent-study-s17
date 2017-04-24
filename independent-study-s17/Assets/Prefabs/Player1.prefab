@@ -39,6 +39,7 @@ GameObject:
   - component: {fileID: 33819436988255074}
   - component: {fileID: 23369846107800926}
   - component: {fileID: 114335516907029326}
+  - component: {fileID: 136230312988688148}
   m_Layer: 0
   m_Name: Player1
   m_TagString: Player
@@ -66,7 +67,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1554176075295304}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 0}
+  m_LocalPosition: {x: 0.5, y: 2, z: -0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4078825464405970}
@@ -86,7 +87,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: f86eb227e483140d29ff3a1855be9b6e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -117,7 +118,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: f86eb227e483140d29ff3a1855be9b6e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -162,4 +163,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isPlayer1: 1
   selector: {fileID: 0}
-  spellInventory: 
+  pos: {x: 0, y: 0, z: 0}
+  spellDisplayObject: {fileID: 0}
+  prevOffset: {x: 0, y: 0, z: 0}
+  otherPlayer: {fileID: 0}
+--- !u!136 &136230312988688148
+CapsuleCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1554176075295304}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
