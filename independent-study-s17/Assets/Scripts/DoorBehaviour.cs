@@ -18,6 +18,11 @@ public class DoorBehaviour : MonoBehaviour {
 			SpawnTiles.blocks [SpawnTiles.roundVector (transform.position)] = gameObject;
 			r.enabled = true;
 		}
+		if (!passable && SpawnTiles.tileExists (transform.position) && !SpawnTiles.tileHasPlayer(SpawnTiles.roundVector (transform.position)) && SpawnTiles.blocks[SpawnTiles.roundVector (transform.position)].GetComponent<WaterManager>()!=null) {
+			Destroy (SpawnTiles.blocks [SpawnTiles.roundVector (transform.position)]);
+			SpawnTiles.blocks [SpawnTiles.roundVector (transform.position)] = gameObject;
+			r.enabled = true;
+		}
 		if (passable && SpawnTiles.tileExists (transform.position) &&
 			SpawnTiles.blocks [SpawnTiles.roundVector (transform.position)] == gameObject) {
 

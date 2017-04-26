@@ -51,6 +51,7 @@ public class Level {
 	public List<int3> endBlocks;
 	public GameObject obj;
 	public SpellManager.spell spellReward;
+	public GameObject levelMarker;
 
 	private static Dictionary<string,SpellManager.spell> toEnum = new Dictionary<string, SpellManager.spell>(){
 		{"push",SpellManager.spell.PUSH},
@@ -163,6 +164,20 @@ public class Level {
 		}
 	}
 
+	public void Reset(){
+		//Erase all respawning blocks
+		foreach (Pushblock p in obj.GetComponentsInChildren<Pushblock>()) {
+			SpawnTiles.blocks.Remove (p.transform.position);
+			GameObject.Destroy (p.gameObject);
+		}
+		foreach (Block b in blocks) {
+			if (b.type.name == "physics") {
+				Vector3 pos = b.pos.ToVector () + position.ToVector ();
+				SpawnNewBlock (b, pos);
+			}
+		}
+	}
+
 	public void Spawn(){
 		foreach (Block b in blocks) {
 			Vector3 pos = b.pos.ToVector () + position.ToVector ();
@@ -177,7 +192,9 @@ public class Level {
 		}
 		if (spellReward != SpellManager.spell.NO_EFFECT) {
 			Vector3 pos = (position + endBlocks [Random.Range (0, endBlocks.Count)] + new int3(0,2,0)).ToVector();
-			GameObject.Instantiate (WorldManager.instance.spellPickup, pos, Quaternion.identity).GetComponent<SpellPickupBehaviour> ().spell = spellReward;
+			GameObject rewardInstance = GameObject.Instantiate (WorldManager.instance.spellPickup, pos, Quaternion.identity);
+			rewardInstance.GetComponent<SpellPickupBehaviour> ().spell = spellReward;
+			rewardInstance.transform.SetParent (obj.transform);
 		}
 	}
 

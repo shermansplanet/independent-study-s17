@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.UI;
 
 public class WorldManager : MonoBehaviour {
 
@@ -9,6 +10,11 @@ public class WorldManager : MonoBehaviour {
 	public BlockType[] publicBlockTypes;
 	public Level[] levelPool;
 	public GameObject spellPickup;
+	public GameObject levelMarker;
+	public UnityEngine.EventSystems.EventSystem events;
+
+	//TEMP
+	public RawImage testImage;
 
 	const int MIN_PATHS = 1;
 	const int MAX_PATHS = 3;
@@ -16,7 +22,7 @@ public class WorldManager : MonoBehaviour {
 	public static List<int3> liminalBlocks;
 	public static List<Level> levelsSpawned;
 	public static Queue<Level> levelsToSpawn;
-
+	public static bool inMenu = false;
 	public static WorldManager instance;
 
 	// Use this for initialization
@@ -87,7 +93,9 @@ public class WorldManager : MonoBehaviour {
 			spellsToLearn.RemoveAt (0);
 			spellsLearned.Add (spell);
 			Level rewardPlace = openLevelExits [Random.Range (0, openLevelExits.Count)];
+			int timeout = 1000;
 			while (rewardPlace.spellReward != SpellManager.spell.NO_EFFECT) {
+				if (--timeout == 0) break;
 				rewardPlace = openLevelExits [Random.Range (0, openLevelExits.Count)];
 			}
 			rewardPlace.spellReward = spell;
@@ -116,6 +124,92 @@ public class WorldManager : MonoBehaviour {
 				levelsToSpawn.Enqueue (child);
 			}
 			yield return new WaitForEndOfFrame ();
+		}
+		GenerateMap ();
+	}
+
+	private void GenerateMap(){
+		//Figure out size of the map
+		int3 globalMin = new int3(int.MaxValue,int.MaxValue,int.MaxValue);
+		int3 globalMax = new int3(int.MinValue,int.MinValue,int.MinValue);
+		foreach (Level l in levelsSpawned) {
+			globalMin = int3.minBound (l.min + l.position, globalMin);
+			globalMax = int3.maxBound (l.max + l.position, globalMax);
+		}
+		const int border = 16;
+		const int blocksize = 16;
+		globalMax += new int3 (border, border, border);
+		globalMin -= new int3 (border, border, border);
+
+		Color mapColor = new Color (0.85f,0.8f,0.7f);
+
+		//Create a blank texture of that size
+		Texture2D mapTex = new Texture2D((globalMax.x - globalMin.x)*blocksize/2, (globalMax.z - globalMin.z)*blocksize/2);
+		Color[] colors = new Color[mapTex.width * mapTex.height];
+		for (int i = 0; i < colors.Length; i++) {
+			colors [i] = mapColor;// * (Mathf.PerlinNoise ((i % mapTex.width)*0.005f, (Mathf.Floor (i / mapTex.width))*0.005f) * 0.2f + 0.8f);
+			colors [i].a = 1;
+		}
+		mapTex.SetPixels (colors);
+
+		//fill it
+		foreach (Vector3 v in SpawnTiles.blocks.Keys) {
+			int3 pos = new int3 (v);
+			pos -= globalMin;
+			for (int dx = 0; dx < blocksize; dx++) {
+				for (int dz = 0; dz < blocksize; dz++) {
+					mapTex.SetPixel (pos.x * blocksize/2 + dx, pos.z * blocksize/2 + dz, new Color (0, 0, 0, 1));
+				}
+			}
+		}
+		mapTex.Apply ();
+
+		testImage.texture = mapTex;
+		testImage.SetNativeSize ();
+
+		bool firstLevel = true;
+
+		foreach (Level l in levelsSpawned) {
+			GameObject marker = Instantiate (levelMarker);
+			marker.transform.parent = testImage.transform;
+			int3 newpos = (l.max + l.min)/2 + l.position - globalMin;
+			marker.GetComponent<RectTransform>().anchoredPosition = new Vector3 (newpos.x, newpos.z, 0) * blocksize/2;
+			marker.GetComponent<LevelMarker> ().level = l;
+			l.levelMarker = marker;
+			if (firstLevel) {
+				events.SetSelectedGameObject (marker);
+				firstLevel = false;
+			}
+		}
+
+		StartCoroutine(SetMenu());
+	}
+
+	void Update(){
+		if (Input.GetButtonDown ("Map")) {
+			inMenu = !inMenu;
+			StartCoroutine(SetMenu());
+		}
+		if (inMenu && (Input.GetButtonDown("Spell0") || Input.GetButtonDown("Spell1"))) {
+			foreach (Level l in levelsSpawned) {
+				l.Reset ();
+			}
+			Level selectedLevel = events.currentSelectedGameObject.GetComponent<LevelMarker> ().level;
+			foreach (Player p in PlayerManager.staticPlayers) {
+				p.Respawn (selectedLevel);
+			}
+			inMenu = false;
+			StartCoroutine(SetMenu());
+		}
+	}
+
+	IEnumerator SetMenu(){
+		testImage.gameObject.SetActive (inMenu);
+		yield return null;
+		if (inMenu) {
+			GameObject marker = PlayerManager.staticPlayers [0].currentLevel.levelMarker;
+			events.SetSelectedGameObject (null);
+			events.SetSelectedGameObject (marker);
 		}
 	}
 

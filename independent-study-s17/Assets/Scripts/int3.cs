@@ -68,4 +68,7 @@ public class int3{
 	public static int3 operator +(int3 a,int3 b){
 		return new int3 (a.x+b.x, a.y+b.y, a.z+b.z);
 	}
+	public static int3 operator /(int3 a,int b){
+		return new int3 (a.x/b, a.y/b, a.z/b);
+	}
 }

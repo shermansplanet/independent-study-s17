@@ -26,19 +26,23 @@ public class Player : MonoBehaviour {
 		SpellManager.spell.RAISE*/
 	};
 
-	public void Respawn(){
-		Level otherLevel = otherPlayer.currentLevel;
-		Debug.Log (otherLevel.name);
-		transform.position = (otherLevel.position + otherLevel.startBlocks [Random.Range (0,otherLevel.startBlocks.Count)]).ToVector() + Vector3.up * 2;
+	public void Respawn(Level otherLevel = null){
+		if(otherLevel==null){
+			otherLevel = otherPlayer.currentLevel;
+		}
+		transform.position = (otherLevel.position + otherLevel.startBlocks [Random.Range (0,otherLevel.startBlocks.Count)]).ToVector() 
+			+ Vector3.up * 2
+			+ (isPlayer1 ? new Vector3(-0.5f,0.0f,0.5f) : new Vector3(0.5f,0.0f,-0.5f));
 	}
 
 	public void UpdateLevel(){
+		const int border = 4;
 		foreach (Level l in WorldManager.levelsSpawned) {
 			if (
-				transform.position.x < l.position.x + l.max.x &&
-				transform.position.x > l.position.x + l.min.x &&
-				transform.position.z < l.position.z + l.max.z &&
-				transform.position.z > l.position.z + l.min.z) {
+				transform.position.x < l.position.x + l.max.x + border &&
+				transform.position.x > l.position.x + l.min.x - border &&
+				transform.position.z < l.position.z + l.max.z + border &&
+				transform.position.z > l.position.z + l.min.z - border) {
 				currentLevel = l;
 				break;
 			}

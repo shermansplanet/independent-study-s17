@@ -15,6 +15,9 @@ public class PlayerManager : MonoBehaviour {
 	}
 
 	void Update () {
+		if (WorldManager.inMenu)
+			return;
+		
 		for (int i = 0; i < players.Length; ++i) {
 
 			Move.ObjectMove ("Vertical" + i.ToString (), "Horizontal" + i.ToString (), players [i]);
