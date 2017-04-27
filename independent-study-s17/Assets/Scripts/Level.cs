@@ -157,7 +157,8 @@ public class Level {
 			} else if (b.type.name == "water") {
 				instance.GetComponent<WaterManager> ().UpdateDirection ();
 			}
-			if (instance.GetComponent<MeshFilter> () != null) {
+			if (b.type.name != "physics" && b.type.name != "water" && instance.GetComponent<MeshFilter> () != null) {
+				instance.isStatic = true;
 				SetVertexColors (instance);
 			}
 			if (iceBlocks.Contains (b)) {
@@ -176,7 +177,7 @@ public class Level {
 			float noise1 = Mathf.PerlinNoise (pos.x, pos.z);
 			float noise2 = Mathf.PerlinNoise (pos.x+100, pos.z);
 			float noise3 = Mathf.PerlinNoise (pos.x+200, pos.z);
-			colors [i] = new Color (noise1, noise2 * noise1, noise3 * noise2 * noise1);
+			colors [i] = Color.Lerp(new Color (noise1, noise2 * noise1, noise3 * noise2 * noise1),Color.white,0.1f);
 		}
 
 		// assign the array of colors to the Mesh.
