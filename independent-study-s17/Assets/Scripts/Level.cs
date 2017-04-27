@@ -189,6 +189,7 @@ public class Level {
 		foreach (Pushblock p in obj.GetComponentsInChildren<Pushblock>()) {
 			SpawnTiles.blocks.Remove (p.transform.position);
 			GameObject.Destroy (p.gameObject);
+			GameObject.Destroy (p.graphics.gameObject);
 		}
 		foreach (Block b in blocks) {
 			if (b.type.name == "physics") {
