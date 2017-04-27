@@ -6,7 +6,7 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Default Tile
+  m_Name: PlayerWhite
   m_Shader: {fileID: 4800000, guid: c7fb0c28f20c84d2a9dc19dec5731b89, type: 3}
   m_ShaderKeywords: _EMISSION
   m_LightmapFlags: 1
@@ -48,7 +48,7 @@ Material:
     - first:
         name: _MainTex
       second:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: aeccfc78617b24c6fb2d87e8868051bc, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - first:
@@ -75,7 +75,7 @@ Material:
       second: 1
     - first:
         name: _Cutoff
-      second: 0.5
+      second: 0.7
     - first:
         name: _DetailNormalMapScale
       second: 1
@@ -121,16 +121,16 @@ Material:
     m_Colors:
     - first:
         name: _Color
-      second: {r: 0.78676474, g: 0.743357, b: 0.6016436, a: 1}
+      second: {r: 1, g: 1, b: 1, a: 1}
     - first:
         name: _EmissionColor
       second: {r: 0, g: 0, b: 0, a: 1}
     - first:
         name: _xColor
-      second: {r: 0.4705882, g: 0.4705882, b: 0.4705882, a: 1}
+      second: {r: 0.78676474, g: 0.78676474, b: 0.78676474, a: 1}
     - first:
         name: _yColor
       second: {r: 1, g: 1, b: 1, a: 1}
     - first:
         name: _zColor
-      second: {r: 0.66176474, g: 0.66176474, b: 0.66176474, a: 1}
+      second: {r: 0.8897059, g: 0.8897059, b: 0.8897059, a: 1}

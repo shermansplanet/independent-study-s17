@@ -9,6 +9,7 @@ public class SpellPickupBehaviour : MonoBehaviour {
 	private void OnTriggerEnter(Collider other){
 		if (other.CompareTag ("Player")) {
 			if (other.GetComponent<Player> ().addSpell (spell)) {
+				Debug.Log ("Got spell");
 				Destroy (gameObject);
 			}
 		}

@@ -157,11 +157,30 @@ public class Level {
 			} else if (b.type.name == "water") {
 				instance.GetComponent<WaterManager> ().UpdateDirection ();
 			}
+			if (instance.GetComponent<MeshFilter> () != null) {
+				SetVertexColors (instance);
+			}
 			if (iceBlocks.Contains (b)) {
 				instance.AddComponent<IceManager> ().updateMaterial();
 			}
 			b.spawnedBlock = instance;
 		}
+	}
+
+	public static void SetVertexColors(GameObject obj){
+		Mesh m = obj.GetComponent<MeshFilter> ().mesh;
+		Color[] colors = new Color[m.vertices.Length];
+
+		for (int i = 0; i < m.vertices.Length; i++) {
+			Vector3 pos = obj.transform.TransformPoint(m.vertices[i]) * 0.06f;
+			float noise1 = Mathf.PerlinNoise (pos.x, pos.z);
+			float noise2 = Mathf.PerlinNoise (pos.x+100, pos.z);
+			float noise3 = Mathf.PerlinNoise (pos.x+200, pos.z);
+			colors [i] = new Color (noise1, noise2 * noise1, noise3 * noise2 * noise1);
+		}
+
+		// assign the array of colors to the Mesh.
+		m.colors = colors;
 	}
 
 	public void Reset(){

@@ -65,15 +65,19 @@ public class Move : MonoBehaviour {
 			positionOffset = Vector3.down * Time.deltaTime * 6;
 		}
 
-		int normalizedX = positionOffset.x > 0 ? 2 : -2;
-		int normalizedZ = positionOffset.z > 0 ? 2 : -2;
+		Vector3 lookVector = p.transform.TransformDirection (Vector3.forward);
+		int normalizedX = lookVector.x > 0 ? 2 : -2;
+		int normalizedZ = lookVector.z > 0 ? 2 : -2;
 
-		if (positionOffset.magnitude > 0) {
-			float distX = Mathf.Abs (normalizedX - positionWithinTile.x * 2) / Mathf.Abs (positionOffset.x);
-			float distZ = Mathf.Abs (normalizedZ - positionWithinTile.z * 2) / Mathf.Abs (positionOffset.z);
-			p.selector.position = currentTile + (distX < distZ ? new Vector3 (normalizedX, 0, 0) : new Vector3 (0, 0, normalizedZ));
-			p.selector.localScale = Vector3.one * (SpawnTiles.tileExists (p.selector.position) ? 2.01f : 1.99f);
-		}
+		float distX = Mathf.Abs (normalizedX - positionWithinTile.x * 2) / Mathf.Abs (lookVector.x);
+		float distZ = Mathf.Abs (normalizedZ - positionWithinTile.z * 2) / Mathf.Abs (lookVector.z);
+
+		Vector3 newPos = currentTile + (distX < distZ ? new Vector3 (normalizedX, 0, 0) : new Vector3 (0, 0, normalizedZ));
+		p.selector.position = newPos;
+
+		bool cubeSelector = SpawnTiles.tileExists (p.selector.position);
+		p.selector.GetComponent<Renderer> ().enabled = cubeSelector;
+		p.selectorChild.GetComponent<Renderer> ().enabled = !cubeSelector;
 
 		bool exceedingBoundaryX = (positionOffset.x > 0 && positionWithinTile.x > RADIUS) || (positionOffset.x < 0 && positionWithinTile.x < -RADIUS);
 		bool exceedingBoundaryZ = (positionOffset.z > 0 && positionWithinTile.z > RADIUS) || (positionOffset.z < 0 && positionWithinTile.z < -RADIUS);

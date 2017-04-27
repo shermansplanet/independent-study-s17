@@ -13,6 +13,8 @@ public class Player : MonoBehaviour {
 	public Level currentLevel;
 	public Player otherPlayer;
 
+	public GameObject selectorChild;
+
 	private int inventorySize = 5;
 
 	private SpellManager.spell currentSpell = SpellManager.spell.PUSH;
@@ -20,9 +22,9 @@ public class Player : MonoBehaviour {
 	//set default spells 
 	private List<SpellManager.spell> spellInventory = new List<SpellManager.spell> {
 		SpellManager.spell.PUSH,
-		/*SpellManager.spell.CREATE_BLOCK,
+		SpellManager.spell.CREATE_BLOCK,
 		SpellManager.spell.CREATE_VOID,
-		SpellManager.spell.CREATE_ICE,
+		/*SpellManager.spell.CREATE_ICE,
 		SpellManager.spell.RAISE*/
 	};
 
@@ -32,7 +34,7 @@ public class Player : MonoBehaviour {
 		}
 		transform.position = (otherLevel.position + otherLevel.startBlocks [Random.Range (0,otherLevel.startBlocks.Count)]).ToVector() 
 			+ Vector3.up * 2
-			+ (isPlayer1 ? new Vector3(-0.5f,0.0f,0.5f) : new Vector3(0.5f,0.0f,-0.5f));
+			+ (isPlayer1 ? new Vector3(0.5f,0.0f,-0.5f) : new Vector3(-0.5f,0.0f,0.5f));
 	}
 
 	public void UpdateLevel(){

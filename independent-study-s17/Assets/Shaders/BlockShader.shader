@@ -27,6 +27,7 @@ Shader "Custom/BlockShader"
 				float4 vertex : POSITION;
 				float2 uv : TEXCOORD0;
 				float3 normal : NORMAL;
+				float4 color : COLOR;
 			};
 
 			struct v2f
@@ -48,7 +49,7 @@ Shader "Custom/BlockShader"
 				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 				float4 newNormal = normalize(mul(unity_ObjectToWorld, float4(v.normal,0.0)));
-				o.color = _xColor * pow(newNormal.x,2) + _yColor * pow(newNormal.y,2) + _zColor * pow(newNormal.z,2);
+				o.color = (_xColor * pow(newNormal.x,2) + _yColor * pow(newNormal.y,2) + _zColor * pow(newNormal.z,2)) * v.color;
 				return o;
 			}
 			

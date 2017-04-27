@@ -23,12 +23,14 @@ public class SpellManager : MonoBehaviour {
 	public GameObject ramp;
 	public GameObject BlackHole;
 
+	public GameObject pushEffect;
+
 	private float[] spellProgress = new float[]{0,0};
 
 	void Start () {
 		selectorMaterials = new Material[selectors.Length];
 		for (int i = 0; i < players.Length; i++) {
-			selectorMaterials [i] = selectors [i].GetComponent<MeshRenderer> ().material;
+			selectorMaterials [i] = selectors [i].GetComponent<MeshRenderer> ().sharedMaterial;
 		}
 	}
 
@@ -63,6 +65,15 @@ public class SpellManager : MonoBehaviour {
 							break;
 						}
 					}
+
+					if (currentSpell [i].Equals (spell.PUSH)) {
+						Instantiate (pushEffect, playerPos, Quaternion.LookRotation (spellPos - playerPos)).transform.Translate (0, 0, -1);
+						if (otherPlayer != -1) {
+							Vector3 otherPlayerPos =  getTile(players [otherPlayer].transform.position);
+							Instantiate (pushEffect, otherPlayerPos, Quaternion.LookRotation (spellPos - otherPlayerPos)).transform.Translate (0, 0, -1);
+						}
+					}
+
 					//PUSH and DOUBlE PUSH
 					if (currentSpell [i].Equals (spell.PUSH) && SpawnTiles.tileExists (spellPos)) {
 						Spellable spellableBlock = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)].GetComponent<Spellable> ();
@@ -76,6 +87,7 @@ public class SpellManager : MonoBehaviour {
 								}
 							}
 						}
+
 						//back to your regullarly scheduled push...
 						if (spellableBlock != null) {
 							if (otherPlayer == -1) {
@@ -223,8 +235,10 @@ public class SpellManager : MonoBehaviour {
 			} else {
 				spellProgress [i] = 0;
 			}
-			float c = Mathf.Clamp01 (spellProgress [i]) * 0.9f + 0.1f;
-			selectorMaterials [i].SetColor ("_TintColor", new Color (c, c, c, 0.5f));
+			const float max = 0.7f;
+			const float min = 0.03f;
+			float c = Mathf.Clamp(max - (spellProgress[i] * (max - min)),min,max);
+			selectorMaterials [i].SetFloat ("_Cutoff", c);
 		}
 	}
 
