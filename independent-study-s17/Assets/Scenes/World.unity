@@ -426,7 +426,7 @@ MonoBehaviour:
   - name: static
     prefab: {fileID: 1259261463863458, guid: 7ea8e8b2578e23c42a84b13256de309f, type: 2}
   - name: physics
-    prefab: {fileID: 1355366036521634, guid: 1483bc374af77b04c87e035447dca511, type: 2}
+    prefab: {fileID: 1421645931665424, guid: 1483bc374af77b04c87e035447dca511, type: 2}
   - name: debug
     prefab: {fileID: 1490158757803084, guid: da9e46cbe3304404fbc134cb3d844053, type: 2}
   - name: ramp
@@ -1320,6 +1320,12 @@ Prefab:
       propertyPath: pushEffect
       value: 
       objectReference: {fileID: 1397157129414054, guid: e003da5f1098a4c0ba956ba4c716687c,
+        type: 2}
+    - target: {fileID: 114758011061859392, guid: 91964fa5fd334fb48b3e54c5f7e9467d,
+        type: 2}
+      propertyPath: Pushblock
+      value: 
+      objectReference: {fileID: 1421645931665424, guid: 1483bc374af77b04c87e035447dca511,
         type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 91964fa5fd334fb48b3e54c5f7e9467d, type: 2}

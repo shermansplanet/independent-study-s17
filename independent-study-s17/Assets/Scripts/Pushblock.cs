@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Pushblock : Spellable {
+
+	public MeshRenderer graphics;
 	
 	public override void ApplySpell (SpellManager.spell spellType, Vector3 casterPosition, Vector3 casterPosition2) {
 		switch(spellType){

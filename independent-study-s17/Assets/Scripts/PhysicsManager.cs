@@ -5,7 +5,7 @@ using UnityEngine;
 public class PhysicsManager : MonoBehaviour {
 
 	public double tick = 1.0;
-	public double nextTime = 0.0;
+	public static double nextTime = 0.0;
 
 	//remember we are in units of 2 (that's why all the random 2's)
 	public int killPlane = -8;
