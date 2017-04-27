@@ -8,7 +8,7 @@ public class Player : MonoBehaviour {
 	public bool isPlayer1;
 	public Transform selector;
 	public Vector3 pos;
-	public SpellDisplay spellDisplayObject;
+	public RawImage spellDisplayObject;
 	public Vector3 prevOffset = Vector3.zero;
 	public Level currentLevel;
 	public Player otherPlayer;
@@ -64,7 +64,7 @@ public class Player : MonoBehaviour {
 			} else {
 				currentSpell = spellInventory [currentIndex + 1];
 			}
-			spellDisplayObject.UpdateText (currentSpell);
+			spellDisplayObject.texture = SpellManager.textureDict [currentSpell];
 		}
 	}
 

@@ -12,6 +12,9 @@ public class SpellManager : MonoBehaviour {
 	//this is currently initialized this way for testing 
 	private spell[] currentSpell = new spell[]{spell.CREATE_ICE,spell.RAISE};
 	public Player[] players;
+	public Texture[] spellTextures;
+
+	public static Dictionary<spell,Texture> textureDict;
 
 	public GameObject[] selectors;
 	private Material[] selectorMaterials;
@@ -32,6 +35,13 @@ public class SpellManager : MonoBehaviour {
 		for (int i = 0; i < players.Length; i++) {
 			selectorMaterials [i] = selectors [i].GetComponent<MeshRenderer> ().sharedMaterial;
 		}
+		textureDict = new Dictionary<spell, Texture> {
+			{spell.PUSH,spellTextures[0]},
+			{spell.CREATE_BLOCK,spellTextures[1]},
+			{spell.CREATE_VOID,spellTextures[2]},
+			{spell.RAISE,spellTextures[3]},
+			{spell.CREATE_ICE,spellTextures[4]},
+		};
 	}
 
 	private Vector3 getTile(Vector3 pos){
