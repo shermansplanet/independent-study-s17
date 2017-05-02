@@ -110,11 +110,12 @@ public class WorldManager : MonoBehaviour {
 			rewardPlace.spellReward = spell;
 		}
 
+		/*
 		foreach (Level l1 in levelsAdded) {
 			foreach (Level l2 in l1.nextLevels) {
 				Debug.Log (l1.name + ">>>" + l2.name);
 			}
-		}
+		}*/
 
 		firstLevel.Zero ();
 		levelsSpawned.Add (firstLevel);

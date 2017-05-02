@@ -11,18 +11,18 @@ Prefab:
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 1554176075295304}
   m_IsPrefabParent: 1
---- !u!1 &1317598304138248
+--- !u!1 &1248242090392758
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4078825464405970}
-  - component: {fileID: 33893919453361190}
-  - component: {fileID: 23919490715080296}
+  - component: {fileID: 4344576586980538}
+  - component: {fileID: 33237741854112328}
+  - component: {fileID: 23442996282890348}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Witch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -47,15 +47,15 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4078825464405970
+--- !u!4 &4344576586980538
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1317598304138248}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.741}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 0.7}
+  m_GameObject: {fileID: 1248242090392758}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1, z: 0}
+  m_LocalScale: {x: 1, y: 0.9, z: 1}
   m_Children: []
   m_Father: {fileID: 4583668701199932}
   m_RootOrder: 0
@@ -70,7 +70,7 @@ Transform:
   m_LocalPosition: {x: 0.5, y: 2, z: -0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 4078825464405970}
+  - {fileID: 4344576586980538}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -80,7 +80,7 @@ MeshRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1554176075295304}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_MotionVectors: 1
@@ -105,12 +105,12 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
---- !u!23 &23919490715080296
+--- !u!23 &23442996282890348
 MeshRenderer:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1317598304138248}
+  m_GameObject: {fileID: 1248242090392758}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -118,7 +118,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: f86eb227e483140d29ff3a1855be9b6e, type: 2}
+  - {fileID: 2100000, guid: 203cf2d7062c84bed9b6b7117189108d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -126,7 +126,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
-  m_PreserveUVs: 1
+  m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
   m_SelectedEditorRenderState: 3
@@ -136,6 +136,13 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!33 &33237741854112328
+MeshFilter:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1248242090392758}
+  m_Mesh: {fileID: 4300002, guid: d01ace30abbed427f9b1dc08ba80e11c, type: 3}
 --- !u!33 &33819436988255074
 MeshFilter:
   m_ObjectHideFlags: 1
@@ -143,13 +150,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1554176075295304}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
---- !u!33 &33893919453361190
-MeshFilter:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1317598304138248}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!114 &114335516907029326
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -167,6 +167,7 @@ MonoBehaviour:
   spellDisplayObject: {fileID: 0}
   prevOffset: {x: 0, y: 0, z: 0}
   otherPlayer: {fileID: 0}
+  selectorChild: {fileID: 0}
 --- !u!136 &136230312988688148
 CapsuleCollider:
   m_ObjectHideFlags: 1

@@ -15,7 +15,7 @@ public class TeleportBehaviour : MonoBehaviour {
 		}
 		if (active) {
 			foreach (Player p in PlayerManager.staticPlayers) {
-				p.transform.position = other.transform.position + Vector3.up + p.offset ();
+				p.transform.position = other.transform.position + Vector3.up + p.offset () * 0.5f;
 			}
 			other.active = false;
 		}
