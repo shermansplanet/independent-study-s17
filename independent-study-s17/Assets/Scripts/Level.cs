@@ -157,12 +157,13 @@ public class Level {
 			} else if (b.type.name == "water") {
 				instance.GetComponent<WaterManager> ().UpdateDirection ();
 			}
-			if (b.type.name != "physics" && b.type.name != "water" && instance.GetComponent<MeshFilter> () != null) {
-				instance.isStatic = true;
-				SetVertexColors (instance);
+			if (b.type.name == "static" || b.type.name == "ramp") {
+				WorldManager.AOTargets.Add (instance);
 			}
 			if (iceBlocks.Contains (b)) {
 				instance.AddComponent<IceManager> ().updateMaterial();
+			}else if (b.type.name != "physics" && b.type.name != "water" && instance.GetComponent<MeshFilter> () != null) {
+				SetVertexColors (instance);
 			}
 			b.spawnedBlock = instance;
 		}
@@ -256,6 +257,39 @@ public class Level {
 	public void Zero(){
 		int3 startPos = startBlocks [Random.Range (0, startBlocks.Count)];
 		position = -startPos;
+	}
+
+	public void Reposition(){
+		List<int3> tempDirections = new List<int3> (directions);
+		List<int3> directionPriority = new List<int3> ();
+		for(int j=4; j>0; j--){
+			int index = Random.Range (0, j);
+			directionPriority.Add (tempDirections[index]);
+			tempDirections.RemoveAt (index);
+		}
+			
+		List<int3> squaresChecked = new List<int3> ();
+		Queue<int3> squaresToCheck = new Queue<int3> ();
+		squaresToCheck.Enqueue (WorldManager.shortcuts[this].position);
+
+		int3 successBlock = null;
+		while (squaresToCheck.Count > 0) {
+			int3 currentSquare = squaresToCheck.Dequeue ();
+			squaresChecked.Add (currentSquare);
+
+			if (!WorldManager.regionIntersect (currentSquare, min, max, visualMin, visualMax, LEVEL_BORDER * 2)) {
+				successBlock = currentSquare;
+				break;
+			}
+			foreach (int3 d in directionPriority) {
+				int3 newSquare = currentSquare + d;
+				if (!squaresChecked.Contains (newSquare) && !squaresToCheck.Contains(newSquare)){
+					squaresToCheck.Enqueue (newSquare);
+				}
+			}
+		}
+
+		position = successBlock;
 	}
 
 	public List<int3> whitelist;
@@ -353,6 +387,8 @@ public class Level {
 
 		foreach (Level l in toRemove) {
 			nextLevels.Remove (l);
+			WorldManager.extraLevels.Enqueue (l);
+			WorldManager.shortcuts.Add (l,this);
 		}
 
 		if (nextLevels.Count == 0) {

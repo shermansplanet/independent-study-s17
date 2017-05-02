@@ -17,7 +17,7 @@ public class PushblockMove : MonoBehaviour {
 		float timeUntilTick = (float)PhysicsManager.nextTime - Time.time;
 		Vector3 diff = toFollow.position - transform.position;
 		if(diff.magnitude > 0.05f && timeUntilTick > 0.01f){
-			transform.position += diff * Time.deltaTime / timeUntilTick;
+			transform.position += diff * Mathf.Clamp01(Time.deltaTime / timeUntilTick);
 		}
 	}
 }

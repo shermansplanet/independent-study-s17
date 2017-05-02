@@ -11,7 +11,10 @@ public class WorldManager : MonoBehaviour {
 	public Level[] levelPool;
 	public GameObject spellPickup;
 	public GameObject levelMarker;
+	public GameObject teleporter;
 	public UnityEngine.EventSystems.EventSystem events;
+
+	public static List<GameObject> AOTargets;
 
 	//TEMP
 	public RawImage testImage;
@@ -21,9 +24,11 @@ public class WorldManager : MonoBehaviour {
 
 	public static List<int3> liminalBlocks;
 	public static List<Level> levelsSpawned;
+	public static Queue<Level> extraLevels;
 	public static Queue<Level> levelsToSpawn;
 	public static bool inMenu = false;
 	public static WorldManager instance;
+	public static Dictionary<Level,Level> shortcuts;
 
 	// Use this for initialization
 	void Awake () {
@@ -31,6 +36,9 @@ public class WorldManager : MonoBehaviour {
 		instance = this;
 		levelsSpawned = new List<Level> ();
 		liminalBlocks = new List<int3> ();
+		extraLevels = new Queue<Level> ();
+		shortcuts = new Dictionary<Level, Level> ();
+		AOTargets = new List<GameObject> ();
 		SpawnTiles.blocks = new Dictionary<Vector3, GameObject> ();
 		blockTypes = publicBlockTypes;
 
@@ -48,7 +56,7 @@ public class WorldManager : MonoBehaviour {
 			SpellManager.spell.CREATE_BLOCK,
 			SpellManager.spell.CREATE_VOID,
 			SpellManager.spell.CREATE_BLOCK,
-			SpellManager.spell.CREATE_VOID,
+			SpellManager.spell.CREATE_VOID
 		};
 
 		List<Level> possibleLevels = new List<Level> ();
@@ -65,10 +73,17 @@ public class WorldManager : MonoBehaviour {
 		Level firstLevel = null;
 
 		while (spellsToLearn.Count > 0) {
-			while (possibleLevels.Count > 0) {
+			while (true) {
+				foreach (Level possibleLevel in levelPool) {
+					if (possibleLevel.canSpawn (spellsLearned, levelsAdded) && !levelsAdded.Contains (possibleLevel) && !possibleLevels.Contains (possibleLevel)) {
+						possibleLevels.Add (possibleLevel);
+					}
+				}
+				if (possibleLevels.Count == 0) {
+					break;
+				}
 				Level l = possibleLevels [Random.Range (0, possibleLevels.Count)];
 				possibleLevels.Remove (l);
-
 				if (openLevelExits.Count == 0) {
 					firstLevel = l;
 				} else {
@@ -81,12 +96,6 @@ public class WorldManager : MonoBehaviour {
 				int paths = Random.Range (MIN_PATHS, MAX_PATHS + 1);
 				for (int i = 0; i < paths; i++) {
 					openLevelExits.Add (l);
-				}
-
-				foreach (Level possibleLevel in levelPool) {
-					if (possibleLevel.canSpawn (spellsLearned, levelsAdded) && !levelsAdded.Contains (possibleLevel) && !possibleLevels.Contains (possibleLevel)) {
-						possibleLevels.Add (possibleLevel);
-					}
 				}
 			}
 			SpellManager.spell spell = spellsToLearn [0];
@@ -101,11 +110,11 @@ public class WorldManager : MonoBehaviour {
 			rewardPlace.spellReward = spell;
 		}
 
-		/*foreach (Level l1 in levelsAdded) {
+		foreach (Level l1 in levelsAdded) {
 			foreach (Level l2 in l1.nextLevels) {
 				Debug.Log (l1.name + ">>>" + l2.name);
 			}
-		}*/
+		}
 
 		firstLevel.Zero ();
 		levelsSpawned.Add (firstLevel);
@@ -116,16 +125,81 @@ public class WorldManager : MonoBehaviour {
 	}
 
 	IEnumerator Generate(){
-		while (levelsToSpawn.Count > 0) {
-			Level l = levelsToSpawn.Dequeue ();
-			l.GenerateConnectors ();
-			l.Spawn ();
-			foreach (Level child in l.nextLevels) {
-				levelsToSpawn.Enqueue (child);
+		while (true) {
+			while (levelsToSpawn.Count > 0) {
+				Level l = levelsToSpawn.Dequeue ();
+				l.GenerateConnectors ();
+				l.Spawn ();
+				foreach (Level child in l.nextLevels) {
+					levelsToSpawn.Enqueue (child);
+				}
+				yield return new WaitForEndOfFrame ();
 			}
-			yield return new WaitForEndOfFrame ();
+			if (extraLevels.Count == 0)
+				break;
+			Level newLevel = extraLevels.Dequeue ();
+			newLevel.Reposition ();
+			levelsSpawned.Add (newLevel);
+			levelsToSpawn.Enqueue (newLevel);
 		}
+		GenerateShortcuts ();
+		StartCoroutine (GenerateAmbientOcclusion ());
 		GenerateMap ();
+	}
+
+	void GenerateShortcuts(){
+		foreach (Level l1 in shortcuts.Keys) {
+			Level l2 = shortcuts [l1];
+			TeleportBehaviour t1 = Instantiate (teleporter, (l1.position + l1.startBlocks [Random.Range (0, l1.endBlocks.Count)]).ToVector () + Vector3.up * 1.01f, teleporter.transform.rotation).GetComponent<TeleportBehaviour> ();
+			TeleportBehaviour t2 = Instantiate (teleporter, (l2.position + l2.endBlocks [Random.Range (0, l2.endBlocks.Count)]).ToVector() + Vector3.up * 1.01f, teleporter.transform.rotation).GetComponent<TeleportBehaviour> ();
+			t1.other = t2;
+			t2.other = t1;
+		}
+	}
+
+	IEnumerator GenerateAmbientOcclusion (){
+		int count = 0;
+		foreach (GameObject g in AOTargets) {
+			Mesh m = g.GetComponent<MeshFilter> ().mesh;
+			Color[] colors = m.colors;
+			if (colors.Length == 0) {
+				colors = new Color[m.vertices.Length];
+				for (int i = 0; i < m.vertices.Length; i++) {
+					colors [i] = Color.white;
+				}
+			}
+			for (int i = 0; i < m.vertices.Length; i++) {
+				Vector3 localPos = g.transform.TransformPoint (m.vertices [i]) - g.transform.position;
+				Vector3 normal = g.transform.TransformDirection (m.normals [i]).normalized;
+				if (Mathf.Abs (normal.x) + Mathf.Abs (normal.y) + Mathf.Abs (normal.z) > 1.1f) {
+					normal = Vector3.up;
+				}
+				foreach(Vector3 v in new Vector3[]{Vector3.up,Vector3.forward,Vector3.right,Vector3.zero}){
+					float angle = Vector3.Angle (v, normal);
+					Vector3 projection = normal;
+					if (angle > 5 && angle < 175) {
+						projection = localPos - v * Vector3.Dot (localPos, v);
+					}
+					if (isAOTarget(SpawnTiles.roundVector(g.transform.position + projection * 2))) {
+						colors [i] *= new Color (0.6f, 0.6f, 0.6f);
+					}
+				}
+			}
+			// assign the array of colors to the Mesh.
+			m.colors = colors;
+			if((count++)%2==0){
+				yield return null;
+			}
+		}
+	}
+
+	private static bool isAOTarget(Vector3 pos){
+		foreach (GameObject g in AOTargets) {
+			if (g.transform.position == pos) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void GenerateMap(){

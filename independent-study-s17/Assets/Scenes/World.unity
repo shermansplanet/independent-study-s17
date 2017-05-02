@@ -421,6 +421,7 @@ MonoBehaviour:
     type: 2}
   levelMarker: {fileID: 1194176084037238, guid: 11eb0818837fe401d96097d413c7e58e,
     type: 2}
+  teleporter: {fileID: 1648767448016536, guid: fc9d2439d23ac49f6a1fee0aee389436, type: 2}
   events: {fileID: 1738636907}
   testImage: {fileID: 1560776670}
 --- !u!4 &553324668

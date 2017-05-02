@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class SpellDisplay : MonoBehaviour {
 
-	private readonly Dictionary<SpellManager.spell,string> spellNames = new Dictionary<SpellManager.spell, string>(){
+	public static readonly Dictionary<SpellManager.spell,string> spellNames = new Dictionary<SpellManager.spell, string>(){
 		{SpellManager.spell.CREATE_BLOCK,"block"},
 		{SpellManager.spell.PUSH,"push"},
 		{SpellManager.spell.CREATE_VOID,"void"}
