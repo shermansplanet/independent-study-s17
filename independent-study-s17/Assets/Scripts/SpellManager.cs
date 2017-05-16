@@ -6,9 +6,18 @@ public class SpellManager : MonoBehaviour {
 
 	const float spellSpeed = 1;
 
-	public enum spell{NO_EFFECT,PUSH, PULL, DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK,CREATE_VOID,CREATE_RAMP,
+	public enum spell{NO_EFFECT,PUSH, PULL, DOUBLE_PUSH,CREATE_BLOCK,CREATE_PUSHBLOCK,DESTROY,CREATE_VOID,CREATE_RAMP,
 						CREATE_ICE, CREATE_ICEBLOCK, REMOVE_ICE, FREEZE_WATER, ICE_ABOVE, WATER_ICE,
-						RAISE, RAISE_PUSH, LOWER, DOUBLE_RAISE, CREATE_BLACKHOLE};
+						RAISE, RAISE_PUSH, LOWER, DOUBLE_RAISE};
+
+
+	public static Dictionary<spell, int> spellCosts = new Dictionary<spell, int>
+	{
+		{spell.NO_EFFECT, 0},{spell.PUSH, 1},{spell.PULL, 1},{spell.DOUBLE_PUSH, 1},{spell.CREATE_BLOCK,4},{spell.CREATE_PUSHBLOCK,2},{spell.DESTROY,1},{spell.CREATE_VOID,7},{spell.CREATE_RAMP,4},
+		{spell.CREATE_ICE, 2},{spell.CREATE_ICEBLOCK, 4},{spell.REMOVE_ICE, 1},{spell.FREEZE_WATER,1},{spell.ICE_ABOVE,1},{spell.WATER_ICE,2},
+		{spell.RAISE, 1}, {spell.RAISE_PUSH,1},{spell.LOWER,1},{spell.DOUBLE_RAISE,1}
+	};
+
 	//this is currently initialized this way for testing 
 	private spell[] currentSpell = new spell[]{spell.CREATE_ICE,spell.RAISE};
 	public Player[] players;
@@ -19,7 +28,7 @@ public class SpellManager : MonoBehaviour {
 	public GameObject[] selectors;
 	private Material[] selectorMaterials;
 
-	//needed to instantiate new blocks
+	//needed to instantiate new blocks//if player limit gets exceeded, remove first active
 	public GameObject tile;
 	public GameObject Pushblock;
 	public GameObject Voidblock;
@@ -104,6 +113,8 @@ public class SpellManager : MonoBehaviour {
 								spellableBlock.ApplySpell (currentSpell [i], playerPos, Vector3.zero);
 							} else {
 								spellableBlock.ApplySpell (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]), playerPos, getTile (players [otherPlayer].transform.position));
+								//check other player's spell limit
+								players [otherPlayer].removeFirstActiveConditional (spellCosts[spell.DOUBLE_PUSH]);
 							}
 							//in case it was inside a void 
 							MeshRenderer rend = spellableBlock.gameObject.GetComponent<MeshRenderer> ();
@@ -112,6 +123,9 @@ public class SpellManager : MonoBehaviour {
 							}
 							rend.enabled = true;
 						}
+						//if player spell limit gets exceeded, remove first active
+						players [i].removeFirstActiveConditional (spellCosts[spell.PUSH]);
+
 					}
 					//PULL
 					else if (currentSpell [i].Equals(spell.PUSH) &&
@@ -128,6 +142,9 @@ public class SpellManager : MonoBehaviour {
 						} else if (SpawnTiles.tileExists (toMoveLeft) && SpawnTiles.blocks[toMoveLeft].GetComponent<Spellable>() != null) {
 							moveAnyObject (toMoveLeft, spellPos);
 						}
+						//if player spell limit gets exceeded, remove first active
+						players [i].removeFirstActiveConditional (spellCosts[spell.PULL]);
+						players [otherPlayer].removeFirstActiveConditional (spellCosts[spell.PULL]);
 					}
 					//CREATE BLOCK/PUSHBLOCK
 					else if (currentSpell [i].Equals (spell.CREATE_BLOCK) &&
@@ -146,25 +163,22 @@ public class SpellManager : MonoBehaviour {
 						} else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_PUSHBLOCK)) {
 							GameObject pushblockClone = Instantiate (Pushblock, spellPos, Quaternion.Euler (0, 0, 0));
 							SpawnTiles.blocks.Add (spellPos, pushblockClone);
+							//check other player's spell limit
+							players [otherPlayer].addActive(spellPos, spellCosts[spell.CREATE_PUSHBLOCK]);
 						}
+						//if player spell limit gets exceeded
+						players [i].addActive (spellPos, spellCosts[spell.CREATE_BLOCK]);
 					} 
-					//CREAT VOID/RAMP
-					else if (currentSpell [i].Equals (spell.CREATE_VOID)) {
-						//no void on top of another void
-						if (otherPlayer == -1 &&
-						    (!SpawnTiles.tileExists (SpawnTiles.roundVector (spellPos)) ||
-						    (SpawnTiles.tileExists (SpawnTiles.roundVector (spellPos)) &&
-						    (SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)].GetComponent<VoidManager> () == null)))) {
-							GameObject voidClone = Instantiate (Voidblock, spellPos, Quaternion.Euler (0, 0, 0));
-							VoidManager v = voidClone.GetComponent<VoidManager> ();
-							//add current object to void inventory if needed
-							if (SpawnTiles.tileExists (spellPos)) {
-								GameObject g = SpawnTiles.blocks [SpawnTiles.roundVector (spellPos)];
-								g.GetComponent<MeshRenderer> ().enabled = false;
-								v.addObject (g);
-								SpawnTiles.blocks.Remove (spellPos);
-							}
-							SpawnTiles.blocks.Add (spellPos, voidClone);
+					//CREAT DESTROY/RAMP
+					else if (currentSpell [i].Equals (spell.DESTROY)) {
+						//destroy pushblocks and ramps
+						Debug.Log("In Destroy");
+						if (otherPlayer == -1 && SpawnTiles.tileExists (spellPos) && 
+							(SpawnTiles.blocks[spellPos].GetComponent<Pushblock>() != null || SpawnTiles.blocks[spellPos].GetComponent<RampBehaviour>() != null)) {
+							Destroy (SpawnTiles.blocks [spellPos].gameObject);
+							SpawnTiles.blocks.Remove (spellPos);
+							//check spell limit 
+							players [i].removeFirstActiveConditional (spellCosts [spell.DESTROY]);
 						} 
 						//create ramp
 						else if (!SpawnTiles.tileExists (spellPos) &&
@@ -175,15 +189,21 @@ public class SpellManager : MonoBehaviour {
 							GameObject rampClone = Instantiate (ramp, spellPos, Quaternion.LookRotation (dir));
 							rampClone.GetComponent<RampBehaviour> ().upSlopeDirection = spellPos - players [i].pos;
 							SpawnTiles.blocks.Add (spellPos, rampClone);
+							//add active spells
+							players [i].addActive (spellPos, spellCosts[spell.CREATE_RAMP]);
+							players [otherPlayer].addActive(spellPos, spellCosts[spell.CREATE_RAMP]);
 						}
-						//create Black Hole
-						else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_BLACKHOLE)) {
+						//create void
+						else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_VOID)) {
 							if (SpawnTiles.tileExists (spellPos)) {
 								Destroy (SpawnTiles.blocks [spellPos].gameObject);
 								SpawnTiles.blocks.Remove (spellPos);
 							}
 							GameObject bh = Instantiate(BlackHole, spellPos, Quaternion.Euler(0,0,0));
 							SpawnTiles.blocks.Add(spellPos, bh);
+							//add active spells
+							players [i].addActive (spellPos, spellCosts[spell.CREATE_VOID]);
+							players [otherPlayer].addActive(spellPos, spellCosts[spell.CREATE_VOID]);
 						}
 					}
 
@@ -195,6 +215,8 @@ public class SpellManager : MonoBehaviour {
 							SpawnTiles.blocks [belowSpellPos].GetComponent<WaterManager> () == null) {
 							SpawnTiles.blocks [belowSpellPos].AddComponent<IceManager> ();
 							SpawnTiles.blocks [belowSpellPos].GetComponent<IceManager> ().updateMaterial ();
+							//spell limit
+							players [i].removeFirstActiveConditional (spellCosts [spell.CREATE_ICE]);
 						} 
 						//ice above - note that it places ice on the top face of spellPos tile
 						else if (SpawnTiles.tileExists (spellPos) && getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.ICE_ABOVE)) {
@@ -204,6 +226,9 @@ public class SpellManager : MonoBehaviour {
 							    above.GetComponent<WaterManager> () == null) {
 								above.AddComponent<IceManager> ();
 								above.GetComponent<IceManager> ().updateMaterial ();
+								//spell limit
+								players [i].removeFirstActiveConditional (spellCosts [spell.ICE_ABOVE]);
+								players [otherPlayer].removeFirstActiveConditional (spellCosts [spell.ICE_ABOVE]);
 							}
 						}
 						//remove ice
@@ -213,6 +238,9 @@ public class SpellManager : MonoBehaviour {
 								active.applyPastMaterial ();
 								Destroy (active);
 							}
+							//spell limit
+							players [i].removeFirstActiveConditional (spellCosts [spell.REMOVE_ICE]);
+							players [otherPlayer].removeFirstActiveConditional (spellCosts [spell.REMOVE_ICE]);
 						}
 					}
 
@@ -222,24 +250,35 @@ public class SpellManager : MonoBehaviour {
 						if (otherPlayer == -1 && SpawnTiles.tileExists (spellPos) &&
 						    !SpawnTiles.tileExists (aboveSpellPos)) {
 							moveAnyObject (spellPos, aboveSpellPos);
+							//spell limit
+							players [i].removeFirstActiveConditional (spellCosts [spell.RAISE]);
 						}
 						//double raise
 						else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.DOUBLE_RAISE) &&
 						         SpawnTiles.tileExists (spellPos) &&
 						         !SpawnTiles.tileExists (aboveSpellPos + Vector3.up * 2)) {
 							moveAnyObject (spellPos, aboveSpellPos + Vector3.up * 2);
+							//spell limit
+							players [i].removeFirstActiveConditional (spellCosts [spell.DOUBLE_RAISE]);
+							players [otherPlayer].removeFirstActiveConditional (spellCosts [spell.DOUBLE_RAISE]);
 						}
 						//raise push
 						else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.RAISE_PUSH) &&
 						         SpawnTiles.tileExists (spellPos)) {
 							Vector3 upAndOver = new Vector3 ((spellPos.x - playerPos.x) + spellPos.x, spellPos.y + 2, (spellPos.z - playerPos.z) + spellPos.z);
 							moveAnyObject (spellPos, upAndOver);
+							//spell limit
+							players [i].removeFirstActiveConditional (spellCosts [spell.RAISE_PUSH]);
+							players [otherPlayer].removeFirstActiveConditional (spellCosts [spell.RAISE_PUSH]);
 						}
 						//lower
 						else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.LOWER) &&
 						         SpawnTiles.tileExists (spellPos)) {
 							moveAnyObject (spellPos, belowSpellPos);
 						}
+						//spell limit
+						players [i].removeFirstActiveConditional (spellCosts [spell.LOWER]);
+						players [otherPlayer].removeFirstActiveConditional (spellCosts [spell.LOWER]);
 					}
 
 
@@ -272,12 +311,12 @@ public class SpellManager : MonoBehaviour {
 				return spell.CREATE_PUSHBLOCK;
 			}
 			break;
-		case spell.CREATE_VOID:
+		case spell.DESTROY:
 			switch (spell2) {
 			case spell.CREATE_BLOCK:
 				return spell.CREATE_RAMP;
-			case spell.CREATE_VOID:
-				return spell.CREATE_BLACKHOLE;
+			case spell.DESTROY:
+				return spell.CREATE_VOID;
 			}
 			break;
 		case spell.CREATE_ICE:

@@ -23,10 +23,47 @@ public class Player : MonoBehaviour {
 	private List<SpellManager.spell> spellInventory = new List<SpellManager.spell> {
 		SpellManager.spell.PUSH,
 		/*SpellManager.spell.CREATE_BLOCK,
-		SpellManager.spell.CREATE_VOID,
 		SpellManager.spell.CREATE_ICE,
 		SpellManager.spell.RAISE*/
 	};
+
+
+	//active spell limit
+	private int activeSpellLimit = 10;
+	private int activeSpellPoints = 0;
+	private List<KeyValuePair<Vector3, int>> activeSpellObjects = new List<KeyValuePair<Vector3,int>>();
+
+	public bool freeActiveSlots(){
+		return activeSpellPoints < activeSpellLimit;
+	}
+
+	public int spellPoints(){
+		return activeSpellPoints;
+	}
+
+	public void addActive(Vector3 pos, int points){
+		activeSpellPoints += points;
+		if (activeSpellPoints <= activeSpellLimit) {
+			activeSpellObjects.Add (new KeyValuePair<Vector3, int>(pos, points));
+		} else {
+			while (activeSpellPoints > activeSpellLimit) {
+				this.removeFirstActive();
+			} activeSpellObjects.Add (new KeyValuePair<Vector3, int>(pos, points));
+		}
+	}
+
+	public void removeFirstActive(){
+		Destroy(SpawnTiles.blocks [activeSpellObjects [0].Key].gameObject);
+		SpawnTiles.blocks.Remove (activeSpellObjects [0].Key);
+		activeSpellPoints -= activeSpellObjects [0].Value;
+		activeSpellObjects.RemoveAt (0);
+	}
+	//remove until x spaces are free
+	public void removeFirstActiveConditional(int x){
+		while (activeSpellLimit - activeSpellPoints < x) {
+			this.removeFirstActive ();
+		}
+	}
 
 	public void Respawn(Level otherLevel = null){
 		if(otherLevel==null){
