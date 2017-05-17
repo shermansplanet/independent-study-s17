@@ -41,4 +41,4 @@
 -6,0,-2,spawn,1,-1
 2,6,4,goal,1,-1
 4,4,-4,physics,1,-1
-spells,push
+spells,push,void

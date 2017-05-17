@@ -188,7 +188,7 @@ public class WorldManager : MonoBehaviour {
 			}
 			// assign the array of colors to the Mesh.
 			m.colors = colors;
-			if((count++)%2==0){
+			if((count++)%100==0){
 				yield return null;
 			}
 		}

@@ -69,6 +69,7 @@ public class SpellManager : MonoBehaviour {
 			if (Input.GetButton("Spell"+i.ToString())) {
 				if (spellProgress [i] >= 1) {
 					spellProgress [i] = -1;
+					players [i].lastSpellFinished = true;
 					Vector3 playerPos = getTile(players [i].transform.position);
 					int otherPlayer = -1;
 					Vector3 spellPos = selectors [i].transform.position;
@@ -291,10 +292,19 @@ public class SpellManager : MonoBehaviour {
 
 
 				} else if (spellProgress [i] >= 0) {
+					if (spellProgress[i] == 0) {
+						players [i].spellSound.pitch = 1;
+						players [i].spellSound.Stop ();
+						players [i].spellSound.Play ();
+						players [i].lastSpellFinished = false;
+					}
 					spellProgress [i] += spellSpeed * Time.deltaTime;
 				}
 			} else {
 				spellProgress [i] = 0;
+				if (!players[i].lastSpellFinished && players [i].spellSound.pitch > 0) {
+					players [i].spellSound.pitch -= Time.deltaTime * 2;
+				}
 			}
 			const float max = 0.7f;
 			const float min = 0.03f;

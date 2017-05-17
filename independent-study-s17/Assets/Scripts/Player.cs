@@ -14,6 +14,8 @@ public class Player : MonoBehaviour {
 	public Player otherPlayer;
 	public GameObject SpellBindingPrefab;
 	public GameObject selectorChild;
+	public AudioSource spellSound;
+	public bool lastSpellFinished = false;
 
 	private int inventorySize = 5;
 
@@ -22,7 +24,7 @@ public class Player : MonoBehaviour {
 	//set default spells 
 	private List<SpellManager.spell> spellInventory = new List<SpellManager.spell> {
 		SpellManager.spell.PUSH,
-		SpellManager.spell.CREATE_BLOCK,
+		/*SpellManager.spell.CREATE_BLOCK,
 		SpellManager.spell.DESTROY,
 		/*SpellManager.spell.CREATE_ICE,
 		SpellManager.spell.RAISE*/
@@ -34,6 +36,10 @@ public class Player : MonoBehaviour {
 	private int activeSpellPoints = 0;
 	private List<KeyValuePair<Vector3, int>> activeSpellObjects = new List<KeyValuePair<Vector3,int>>();
 	private List<SpellBindingDisplay> activeSpellBindings = new List<SpellBindingDisplay>();
+
+	void Start(){
+		spellSound = GetComponent<AudioSource> ();
+	}
 
 	public bool freeActiveSlots(){
 		return activeSpellPoints < activeSpellLimit;
