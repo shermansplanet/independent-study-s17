@@ -23,6 +23,7 @@ public class Player : MonoBehaviour {
 	private List<SpellManager.spell> spellInventory = new List<SpellManager.spell> {
 		SpellManager.spell.PUSH,
 		SpellManager.spell.CREATE_BLOCK,
+		SpellManager.spell.DESTROY,
 		/*SpellManager.spell.CREATE_ICE,
 		SpellManager.spell.RAISE*/
 	};

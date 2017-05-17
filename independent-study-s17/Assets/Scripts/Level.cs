@@ -56,7 +56,7 @@ public class Level {
 	private static Dictionary<string,SpellManager.spell> toEnum = new Dictionary<string, SpellManager.spell>(){
 		{"push",SpellManager.spell.PUSH},
 		{"block",SpellManager.spell.CREATE_BLOCK},
-		{"void",SpellManager.spell.CREATE_VOID}
+		{"void",SpellManager.spell.DESTROY}
 	};
 
 	private List<Block> iceBlocks;

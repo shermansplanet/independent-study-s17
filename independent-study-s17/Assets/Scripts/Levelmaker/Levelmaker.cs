@@ -310,11 +310,11 @@ public class Levelmaker : MonoBehaviour {
 			blockDirections [currentDirection].ToVector () * 0.66f;
 	}
 
-	private void MakeBlock(int3 pos, block type, byte dir, int index = -1){
+	private void MakeBlock(int3 pos, block type, byte dir, int index = -1, bool loading = false){
 		GameObject blockInstance = Instantiate (type.model, pos.ToVector(), Quaternion.identity);
 		blockInstance.transform.rotation = Quaternion.LookRotation (blockDirections [dir].ToVector());
 		blockInstance.GetComponent<Renderer> ().material.color = type.color;
-		blockData instance = new blockData (type, pos, dir, blockInstance);
+		blockData instance = new blockData (type, pos, dir, blockInstance,index);
 		blocksInScene.Add (pos, instance);
 		if (type.name == "button") {
 			instance.index = buttonCount;
@@ -322,7 +322,7 @@ public class Levelmaker : MonoBehaviour {
 		} else {
 			Instantiate (backCollider, pos.ToVector (), Quaternion.identity).transform.SetParent (blockInstance.transform);
 		}
-		if (type.name == "door") {
+		if (type.name == "door" && !loading) {
 			currentDoor = instance;
 			line.enabled = true;
 			connecting = true;
@@ -338,6 +338,7 @@ public class Levelmaker : MonoBehaviour {
 
 	public void Load(){
 		Clear ();
+		buttonCount = 0;
 		string s = System.IO.File.ReadAllText("Assets/Resources/" + loadInput.text + ".txt");
 		saveInput.text = loadInput.text;
 		foreach (string line in s.Split('\n')) {
@@ -356,7 +357,7 @@ public class Levelmaker : MonoBehaviour {
 				byte dir = item.Length < 5 ? (byte)0 : byte.Parse (item [4]);
 				foreach (block b in blocktypes) {
 					if (b.name == item [3]) {
-						MakeBlock (pos, b, dir,int.Parse(item[5]));
+						MakeBlock (pos, b, dir,int.Parse(item[5]),true);
 						break;
 					}
 				}
