@@ -135,11 +135,11 @@ public class SpellManager : MonoBehaviour {
 						Vector3 toMoveRight = spellPos + Vector3.left * 2;
 						Vector3 toMoveForward = spellPos + Vector3.forward * 2;
 						Vector3 toMoveLeft = spellPos + Vector3.left * 2;
-						if (SpawnTiles.tileExists (toMoveRight) && SpawnTiles.blocks[toMoveRight].GetComponent<Spellable>() != null) {
+						if (SpawnTiles.tileExists (toMoveRight) && SpawnTiles.blocks[toMoveRight].GetComponent<Pushblock>() != null) {
 							moveAnyObject (toMoveRight, spellPos);
-						} else if (SpawnTiles.tileExists (toMoveForward) && SpawnTiles.blocks[toMoveForward].GetComponent<Spellable>() != null) {
+						} else if (SpawnTiles.tileExists (toMoveForward) && SpawnTiles.blocks[toMoveForward].GetComponent<Pushblock>() != null) {
 							moveAnyObject (toMoveForward, spellPos);
-						} else if (SpawnTiles.tileExists (toMoveLeft) && SpawnTiles.blocks[toMoveLeft].GetComponent<Spellable>() != null) {
+						} else if (SpawnTiles.tileExists (toMoveLeft) && SpawnTiles.blocks[toMoveLeft].GetComponent<Pushblock>() != null) {
 							moveAnyObject (toMoveLeft, spellPos);
 						}
 						//if player spell limit gets exceeded, remove first active
@@ -172,7 +172,6 @@ public class SpellManager : MonoBehaviour {
 					//CREAT DESTROY/RAMP
 					else if (currentSpell [i].Equals (spell.DESTROY)) {
 						//destroy pushblocks and ramps
-						Debug.Log("In Destroy");
 						if (otherPlayer == -1 && SpawnTiles.tileExists (spellPos) && 
 							(SpawnTiles.blocks[spellPos].GetComponent<Pushblock>() != null || SpawnTiles.blocks[spellPos].GetComponent<RampBehaviour>() != null)) {
 							Destroy (SpawnTiles.blocks [spellPos].gameObject);
