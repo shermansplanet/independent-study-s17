@@ -205,7 +205,7 @@ public class SpellManager : MonoBehaviour {
 								Destroy (SpawnTiles.blocks [spellPos].gameObject);
 								SpawnTiles.blocks.Remove (spellPos);
 							}
-							GameObject bh = Instantiate(BlackHole, spellPos, Quaternion.Euler(0,0,0));
+							GameObject bh = Instantiate(Voidblock, spellPos, Quaternion.Euler(0,0,0));
 							SpawnTiles.blocks.Add(spellPos, bh);
 							//add active spells
 							players [i].addActive (spellPos, spell.CREATE_VOID);
