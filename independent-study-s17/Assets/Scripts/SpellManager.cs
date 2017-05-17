@@ -168,6 +168,7 @@ public class SpellManager : MonoBehaviour {
 							GameObject tileClone = Instantiate (tile, spellPos, Quaternion.Euler (0, 0, 0));
 							SpawnTiles.blocks.Add (spellPos, tileClone);
 							players [i].addActive (spellPos, spell.CREATE_BLOCK);
+							Level.SetVertexColors (tileClone);
 						} else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_PUSHBLOCK)) {
 							GameObject pushblockClone = Instantiate (Pushblock, spellPos, Quaternion.Euler (0, 0, 0));
 							SpawnTiles.blocks.Add (spellPos, pushblockClone);
