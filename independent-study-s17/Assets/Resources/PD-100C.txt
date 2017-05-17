@@ -75,4 +75,5 @@
 8,4,-4,static,1,-1
 12,8,-4,static,1,-1
 10,8,-4,static,1,-1
-spells,void,push
+6,4,-4,static,1,-1
+spells,push

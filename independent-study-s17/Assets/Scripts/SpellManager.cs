@@ -301,7 +301,7 @@ public class SpellManager : MonoBehaviour {
 			switch (spell2) {
 			case spell.PUSH:
 				return spell.DOUBLE_PUSH;
-			case spell.CREATE_VOID:
+			case spell.DESTROY:
 				return spell.PULL;
 			}
 			break;
