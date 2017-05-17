@@ -196,6 +196,7 @@ public class SpellManager : MonoBehaviour {
 							GameObject rampClone = Instantiate (ramp, spellPos, Quaternion.LookRotation (dir));
 							rampClone.GetComponent<RampBehaviour> ().upSlopeDirection = spellPos - players [i].pos;
 							SpawnTiles.blocks.Add (spellPos, rampClone);
+							Level.SetVertexColors (rampClone);
 							//add active spells
 							players [i].addActive (spellPos, spell.CREATE_RAMP);
 							players [otherPlayer].addActive(spellPos, spell.CREATE_RAMP);
