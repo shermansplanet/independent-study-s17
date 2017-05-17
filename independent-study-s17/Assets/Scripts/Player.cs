@@ -12,7 +12,7 @@ public class Player : MonoBehaviour {
 	public Vector3 prevOffset = Vector3.zero;
 	public Level currentLevel;
 	public Player otherPlayer;
-
+	public GameObject SpellBindingPrefab;
 	public GameObject selectorChild;
 
 	private int inventorySize = 5;
@@ -29,9 +29,10 @@ public class Player : MonoBehaviour {
 
 
 	//active spell limit
-	private int activeSpellLimit = 10;
+	public const int activeSpellLimit = 10;
 	private int activeSpellPoints = 0;
 	private List<KeyValuePair<Vector3, int>> activeSpellObjects = new List<KeyValuePair<Vector3,int>>();
+	private List<SpellBindingDisplay> activeSpellBindings = new List<SpellBindingDisplay>();
 
 	public bool freeActiveSlots(){
 		return activeSpellPoints < activeSpellLimit;
@@ -41,8 +42,21 @@ public class Player : MonoBehaviour {
 		return activeSpellPoints;
 	}
 
-	public void addActive(Vector3 pos, int points){
+	public void addActive(Vector3 pos, SpellManager.spell spell){
+		int points = SpellManager.spellCosts [spell];
 		activeSpellPoints += points;
+
+		GameObject bindingObject = Instantiate (SpellBindingPrefab);
+		bindingObject.transform.SetParent (spellDisplayObject.transform);
+		bindingObject.transform.localScale = Vector3.one;
+		SpellBindingDisplay bindingScript = bindingObject.GetComponent<SpellBindingDisplay> ();
+		bindingScript.height = points;
+		bindingScript.Init (spell);
+		activeSpellBindings.Add (bindingScript);
+		foreach (SpellBindingDisplay s in activeSpellBindings) {
+			s.StartCoroutine (s.ShiftUp (points));
+		}
+
 		if (activeSpellPoints <= activeSpellLimit) {
 			activeSpellObjects.Add (new KeyValuePair<Vector3, int>(pos, points));
 		} else {
@@ -57,6 +71,7 @@ public class Player : MonoBehaviour {
 		SpawnTiles.blocks.Remove (activeSpellObjects [0].Key);
 		activeSpellPoints -= activeSpellObjects [0].Value;
 		activeSpellObjects.RemoveAt (0);
+		activeSpellBindings.RemoveAt (0);
 	}
 	//remove until x spaces are free
 	public void removeFirstActiveConditional(int x){

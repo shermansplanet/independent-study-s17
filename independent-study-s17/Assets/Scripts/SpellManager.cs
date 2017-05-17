@@ -160,14 +160,14 @@ public class SpellManager : MonoBehaviour {
 						if (otherPlayer == -1) {
 							GameObject tileClone = Instantiate (tile, spellPos, Quaternion.Euler (0, 0, 0));
 							SpawnTiles.blocks.Add (spellPos, tileClone);
+							players [i].addActive (spellPos, spell.CREATE_BLOCK);
 						} else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_PUSHBLOCK)) {
 							GameObject pushblockClone = Instantiate (Pushblock, spellPos, Quaternion.Euler (0, 0, 0));
 							SpawnTiles.blocks.Add (spellPos, pushblockClone);
 							//check other player's spell limit
-							players [otherPlayer].addActive(spellPos, spellCosts[spell.CREATE_PUSHBLOCK]);
+							players [otherPlayer].addActive(spellPos,spell.CREATE_PUSHBLOCK);
+							players [i].addActive (spellPos, spell.CREATE_PUSHBLOCK);
 						}
-						//if player spell limit gets exceeded
-						players [i].addActive (spellPos, spellCosts[spell.CREATE_BLOCK]);
 					} 
 					//CREAT DESTROY/RAMP
 					else if (currentSpell [i].Equals (spell.DESTROY)) {
@@ -190,8 +190,8 @@ public class SpellManager : MonoBehaviour {
 							rampClone.GetComponent<RampBehaviour> ().upSlopeDirection = spellPos - players [i].pos;
 							SpawnTiles.blocks.Add (spellPos, rampClone);
 							//add active spells
-							players [i].addActive (spellPos, spellCosts[spell.CREATE_RAMP]);
-							players [otherPlayer].addActive(spellPos, spellCosts[spell.CREATE_RAMP]);
+							players [i].addActive (spellPos, spell.CREATE_RAMP);
+							players [otherPlayer].addActive(spellPos, spell.CREATE_RAMP);
 						}
 						//create void
 						else if (getSpellCombo (currentSpell [i], currentSpell [otherPlayer]).Equals (spell.CREATE_VOID)) {
@@ -202,8 +202,8 @@ public class SpellManager : MonoBehaviour {
 							GameObject bh = Instantiate(BlackHole, spellPos, Quaternion.Euler(0,0,0));
 							SpawnTiles.blocks.Add(spellPos, bh);
 							//add active spells
-							players [i].addActive (spellPos, spellCosts[spell.CREATE_VOID]);
-							players [otherPlayer].addActive(spellPos, spellCosts[spell.CREATE_VOID]);
+							players [i].addActive (spellPos, spell.CREATE_VOID);
+							players [otherPlayer].addActive(spellPos, spell.CREATE_VOID);
 						}
 					}
 

@@ -173,7 +173,7 @@ public class WorldManager : MonoBehaviour {
 				Vector3 localPos = g.transform.TransformPoint (m.vertices [i]) - g.transform.position;
 				Vector3 normal = g.transform.TransformDirection (m.normals [i]).normalized;
 				if (Mathf.Abs (normal.x) + Mathf.Abs (normal.y) + Mathf.Abs (normal.z) > 1.1f) {
-					normal = Vector3.up;
+					continue;
 				}
 				foreach(Vector3 v in new Vector3[]{Vector3.up,Vector3.forward,Vector3.right,Vector3.zero}){
 					float angle = Vector3.Angle (v, normal);

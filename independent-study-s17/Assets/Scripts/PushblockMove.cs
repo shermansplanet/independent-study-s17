@@ -14,6 +14,10 @@ public class PushblockMove : MonoBehaviour {
 	
 	// Update is called once per frame
 	void LateUpdate () {
+		if (toFollow == null) {
+			Destroy (gameObject);
+			return;
+		}
 		float timeUntilTick = (float)PhysicsManager.nextTime - Time.time;
 		Vector3 diff = toFollow.position - transform.position;
 		if(diff.magnitude > 0.05f && timeUntilTick > 0.01f){

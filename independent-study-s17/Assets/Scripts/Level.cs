@@ -380,7 +380,6 @@ public class Level {
 			}
 
 			if (!success) {
-				Debug.Log ("Failed to connect level " + name + " >>> " + nextLevel.name);
 				toRemove.Add (nextLevel);
 			}
 		}
@@ -503,10 +502,6 @@ public class Level {
 		}
 
 		if (successBlock == null) {
-			/*foreach (int3 pos in squaresChecked) {
-				GameObject.Instantiate (WorldManager.blockTypes [2].prefab, pos.ToVector (), Quaternion.identity);
-			}*/
-			Debug.Log ("BFS failure");
 			return false;
 		}
 
