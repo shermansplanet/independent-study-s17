@@ -47,7 +47,7 @@ public class SpellManager : MonoBehaviour {
 		textureDict = new Dictionary<spell, Texture> {
 			{spell.PUSH,spellTextures[0]},
 			{spell.CREATE_BLOCK,spellTextures[1]},
-			{spell.CREATE_VOID,spellTextures[2]},
+			{spell.DESTROY,spellTextures[2]},
 			{spell.RAISE,spellTextures[3]},
 			{spell.CREATE_ICE,spellTextures[4]},
 		};

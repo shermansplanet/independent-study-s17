@@ -22,8 +22,8 @@ public class Player : MonoBehaviour {
 	//set default spells 
 	private List<SpellManager.spell> spellInventory = new List<SpellManager.spell> {
 		SpellManager.spell.PUSH,
-		/*SpellManager.spell.CREATE_BLOCK,
-		SpellManager.spell.CREATE_ICE,
+		SpellManager.spell.CREATE_BLOCK,
+		/*SpellManager.spell.CREATE_ICE,
 		SpellManager.spell.RAISE*/
 	};
 

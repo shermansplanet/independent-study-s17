@@ -54,9 +54,9 @@ public class WorldManager : MonoBehaviour {
 
 		List<SpellManager.spell> spellsToLearn = new List<SpellManager.spell>{
 			SpellManager.spell.CREATE_BLOCK,
-			SpellManager.spell.CREATE_VOID,
+			SpellManager.spell.DESTROY,
 			SpellManager.spell.CREATE_BLOCK,
-			SpellManager.spell.CREATE_VOID
+			SpellManager.spell.DESTROY
 		};
 
 		List<Level> possibleLevels = new List<Level> ();

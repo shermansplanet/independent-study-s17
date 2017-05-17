@@ -191,6 +191,7 @@ GameObject:
   - component: {fileID: 261761138}
   - component: {fileID: 261761140}
   - component: {fileID: 261761139}
+  - component: {fileID: 261761141}
   m_Layer: 5
   m_Name: SpellDisplay2
   m_TagString: Untagged
@@ -249,6 +250,17 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 261761137}
+--- !u!114 &261761141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 261761137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 237431511a69e4839b6127653b1b125b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &277021098
 GameObject:
   m_ObjectHideFlags: 0
@@ -813,6 +825,7 @@ GameObject:
   - component: {fileID: 1377731270}
   - component: {fileID: 1377731272}
   - component: {fileID: 1377731271}
+  - component: {fileID: 1377731273}
   m_Layer: 5
   m_Name: SpellDisplay1
   m_TagString: Untagged
@@ -871,6 +884,17 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1377731269}
+--- !u!114 &1377731273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1377731269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 237431511a69e4839b6127653b1b125b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1406257871
 Prefab:
   m_ObjectHideFlags: 0
