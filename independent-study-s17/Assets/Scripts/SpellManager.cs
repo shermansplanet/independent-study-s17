@@ -132,15 +132,22 @@ public class SpellManager : MonoBehaviour {
 						otherPlayer != -1 &&
 						getSpellCombo(currentSpell[i], currentSpell[otherPlayer]).Equals(spell.PULL) &&
 						SpawnTiles.tileIsFree(spellPos)) {
-						Vector3 toMoveRight = spellPos + Vector3.left * 2;
+						Vector3 toMoveRight = spellPos + Vector3.right * 2;
 						Vector3 toMoveForward = spellPos + Vector3.forward * 2;
 						Vector3 toMoveLeft = spellPos + Vector3.left * 2;
+						Vector3 toMoveBack = spellPos + Vector3.back * 2;
 						if (SpawnTiles.tileExists (toMoveRight) && SpawnTiles.blocks[toMoveRight].GetComponent<Pushblock>() != null) {
 							moveAnyObject (toMoveRight, spellPos);
+							Debug.Log ("right");
 						} else if (SpawnTiles.tileExists (toMoveForward) && SpawnTiles.blocks[toMoveForward].GetComponent<Pushblock>() != null) {
 							moveAnyObject (toMoveForward, spellPos);
+							Debug.Log ("forward");
 						} else if (SpawnTiles.tileExists (toMoveLeft) && SpawnTiles.blocks[toMoveLeft].GetComponent<Pushblock>() != null) {
 							moveAnyObject (toMoveLeft, spellPos);
+							Debug.Log ("left");
+						} else if (SpawnTiles.tileExists (toMoveBack) && SpawnTiles.blocks[toMoveBack].GetComponent<Pushblock>() != null) {
+							moveAnyObject (toMoveBack, spellPos);
+							Debug.Log ("back");
 						}
 						//if player spell limit gets exceeded, remove first active
 						players [i].removeFirstActiveConditional (spellCosts[spell.PULL]);
