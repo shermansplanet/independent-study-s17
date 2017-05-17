@@ -15,7 +15,7 @@
 0,0,-6,ice_static,1,-1
 -2,0,-6,ice_static,1,-1
 6,0,-4,static,1,-1
-6,2,-4,button,1,0
+6,2,-4,button,1,2
 -2,0,-8,static,1,-1
 0,0,-8,static,1,-1
 2,0,-8,static,1,-1
@@ -26,10 +26,15 @@
 4,0,-10,static,1,-1
 -2,2,-10,static,1,-1
 4,2,-10,static,1,-1
-0,2,-10,door,1,0
-2,2,-10,door,1,0
+0,2,-10,door,1,-1
+2,2,-10,door,1,2
 0,0,-12,static,1,-1
 2,0,-12,static,1,-1
 2,0,-14,goal,1,-1
--2,0,2,spawn,1,-1
+-2,0,2,static,1,-1
+0,0,2,static,1,-1
+2,0,2,static,1,-1
+4,0,2,static,1,-1
+-2,0,4,spawn,1,-1
+2,2,0,physics,1,-1
 spells,block,block
